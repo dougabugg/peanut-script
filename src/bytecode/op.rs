@@ -1,0 +1,98 @@
+use super::CallFrame;
+
+use crate::datamodel::{Function, Value, ValueTryIntoError};
+
+pub trait Operation {
+    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError>;
+}
+
+pub enum OpAction {
+    None,
+    Jump(usize),
+    Call(Function, Vec<Value>),
+    Return(Value),
+}
+
+pub enum OpError {
+    StackRead,
+    StackWrite,
+    IntoType(ValueTryIntoError),
+    IndexRead,
+    IndexWrite,
+}
+
+impl From<ValueTryIntoError> for OpError {
+    fn from(t: ValueTryIntoError) -> OpError {
+        OpError::IntoType(t)
+    }
+}
+
+macro_rules! create_op_type {
+    ($($op:ident),+) => {
+        #[repr(u8)]
+        pub enum OpType {
+            $($op),+
+        }
+
+        pub enum Op {
+            $($op($op)),+
+        }
+
+        impl Op {
+            pub fn get_type(&self) -> OpType {
+                match self {
+                    $(
+                        Op::$op(_) => OpType::$op
+                    ),+
+                }
+            }
+        }
+
+        impl Operation for Op {
+            fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+                match self {
+                    $(
+                        Op::$op(op) => Operation::exec(op, m)// op.exec(m)
+                    ),+
+                }
+            }
+        }
+
+        impl BytesIO for Op {
+            #![allow(non_upper_case_globals)]
+            fn read<'a>(b: &'a [u8]) -> Result<(&'a [u8], Self), BytesReadError<'a>> {
+                let (b2, n) = <u8 as BytesIO>::read(b)?;
+                $(
+                    const $op: u8 = OpType::$op as u8;
+                )+
+                match n {
+                    $(
+                        $op => {
+                            let (b, op) = <$op as BytesIO>::read(b2)?;
+                            Ok( (b, Op::$op(op)) )
+                        }
+                    ),+
+                    _ => return Err(BytesReadError::InvalidValue(b))
+                }
+            }
+            fn write<'a>(t: &Self, b: &'a mut [u8]) -> Option<&'a mut [u8]> {
+                match t {
+                    $(
+                        Op::$op(op) => {
+                            let b = <u8 as BytesIO>::write(&(OpType::$op as u8), b)?;
+                            <$op as BytesIO>::write(op, b)
+                        }
+                    ),+
+                }
+            }
+        }
+
+        $(
+            impl From<$op> for Op {
+                fn from(t: $op) -> Self {
+                    Op::$op(t)
+                }
+            }
+        )+
+    };
+}
