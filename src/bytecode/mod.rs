@@ -10,6 +10,7 @@ mod call;
 mod cmp;
 mod int;
 mod jump;
+mod list;
 mod literal;
 mod num;
 mod real;

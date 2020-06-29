@@ -7,6 +7,7 @@ use super::{
     cmp::Cmp,
     int::{And, Not, Or, Shl, Shr, Xor},
     jump::{Jump, JumpNeg, JumpZero},
+    list::{ListCreate, ListGetSlice, ListPop, ListPush},
     literal::{LiteralCreate, LocalCopy},
     num::{Add, Div, Mul, Neg, Rem, Sub},
     real::{Ceil, Floor, Round, Trunc},
@@ -127,5 +128,9 @@ create_op_type!(
     // record
     RecordCreate, RecordFromList, RecordWeakRef, WeakRecordUpgrade,
     // table
-    TableCreate
+    TableCreate,
+    // list
+    ListCreate, ListPush, ListPop, ListGetSlice
+    // buffer
+    // seq
 );

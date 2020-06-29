@@ -10,10 +10,14 @@ pub struct List {
 }
 
 impl List {
-    pub fn new() -> List {
+    pub fn new(v: Vec<Value>) -> List {
         List {
-            items: Rc::new(RefCell::new(Vec::new())),
+            items: Rc::new(RefCell::new(v)),
         }
+    }
+
+    pub fn empty() -> List {
+        List::new(Vec::new())
     }
 
     pub fn as_slice(&self) -> Ref<[Value]> {
@@ -50,26 +54,34 @@ impl List {
         })
     }
 
-    pub fn set_slice(
-        &self,
-        src: &List,
-        src_offset: usize,
-        offset: usize,
-        len: usize,
-    ) -> Option<()> {
-        let mut items = self.items.borrow_mut();
-        if Rc::ptr_eq(&self.items, &src.items) {
-            if len + src_offset > items.len() || len + offset > items.len() {
-                return None;
-            }
-            for i in 0..len {
-                items[offset + i] = items[src_offset + i].clone();
-            }
-        } else {
-            let dst = items.get_mut(offset..len + offset)?;
-            dst.clone_from_slice(src.items.borrow().get(src_offset..len + src_offset)?);
-        }
-        Some(())
+    // pub fn set_slice(
+    //     &self,
+    //     src: &List,
+    //     src_offset: usize,
+    //     offset: usize,
+    //     len: usize,
+    // ) -> Option<()> {
+    //     let mut items = self.items.borrow_mut();
+    //     if Rc::ptr_eq(&self.items, &src.items) {
+    //         if len + src_offset > items.len() || len + offset > items.len() {
+    //             return None;
+    //         }
+    //         for i in 0..len {
+    //             items[offset + i] = items[src_offset + i].clone();
+    //         }
+    //     } else {
+    //         let dst = items.get_mut(offset..len + offset)?;
+    //         dst.clone_from_slice(src.items.borrow().get(src_offset..len + src_offset)?);
+    //     }
+    //     Some(())
+    // }
+
+    pub fn push(&self, val: Value) {
+        self.items.borrow_mut().push(val);
+    }
+
+    pub fn pop(&self) -> Option<Value> {
+        self.items.borrow_mut().pop()
     }
 }
 
