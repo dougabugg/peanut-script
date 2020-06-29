@@ -1,5 +1,5 @@
-use std::convert::TryInto;
 use std::cell::RefCell;
+use std::convert::TryInto;
 
 use crate::datamodel::{List, Record, Value};
 
@@ -30,8 +30,11 @@ impl Operation for RecordCreate {
             let item = m.local.get(*i as usize).ok_or(OpError::StackRead)?;
             acc.push(RefCell::new(item.clone()));
         }
-        let out: &mut Value = m.local.get_mut(self.output as usize).ok_or(OpError::StackWrite)?;
-        *out = Record::new(acc);
+        let out: &mut Value = m
+            .local
+            .get_mut(self.output as usize)
+            .ok_or(OpError::StackWrite)?;
+        *out = Record::new(acc).into();
         Ok(OpAction::None)
     }
 }
