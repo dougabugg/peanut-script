@@ -110,3 +110,5 @@ impl Operation for SeqQuickSet {
         Ok(OpAction::None)
     }
 }
+
+// TODO seq to list, and seq expand (for list and buffer)

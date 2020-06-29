@@ -8,7 +8,7 @@ new_unary_op!(BufferCreate);
 impl Operation for BufferCreate {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
         let len = *TryInto::<&i64>::try_into(m.load(self.val as usize)?)?;
-        let val = Buffer::new();
+        let val = Buffer::empty();
         val.resize(len as usize);
         m.store(self.out as usize, val.into())?;
         Ok(OpAction::None)

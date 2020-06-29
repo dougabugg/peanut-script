@@ -19,6 +19,17 @@ pub enum LiteralValue {
     Real(f64),
 }
 
+impl LiteralValue {
+    pub fn into_val(&self) -> Value {
+        match self {
+            LiteralValue::None => Value::None,
+            LiteralValue::Bool(b) => Value::Bool(*b),
+            LiteralValue::Integer(i) => Value::Integer(*i),
+            LiteralValue::Real(r) => Value::Real(*r),
+        }
+    }
+}
+
 impl BytesIO for LiteralValue {
     fn read<'a>(b: &'a [u8]) -> Result<(&'a [u8], Self), BytesReadError<'a>> {
         let (b2, n) = <u8 as BytesIO>::read(b)?;

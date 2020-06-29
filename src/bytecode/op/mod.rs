@@ -1,22 +1,43 @@
-use super::{BytesIO, BytesReadError, CallFrame};
+#[macro_use]
+mod macros;
+
+mod stackargs;
+
+mod buffer;
+mod call;
+mod cmp;
+mod int;
+mod jump;
+mod list;
+mod literal;
+mod num;
+mod real;
+mod record;
+mod seq;
+mod table;
+mod tuple;
+
+use super::{BytesIO, BytesReadError, DataIO};
+
+use crate::runtime::CallFrame;
 
 use crate::datamodel::{Function, Value, ValueTryIntoError};
 
-use super::{
-    buffer::{BufferCreate, BufferGetSlice, BufferSetSlice},
-    call::{Call, Return},
-    cmp::Cmp,
-    int::{And, Not, Or, Shl, Shr, Xor},
-    jump::{Jump, JumpNeg, JumpZero},
-    list::{ListCreate, ListGetSlice, ListPop, ListPush},
-    literal::{LiteralCreate, LocalCopy},
-    num::{Add, Div, Mul, Neg, Rem, Sub},
-    real::{Ceil, Floor, Round, Trunc},
-    record::{RecordCreate, RecordFromList, RecordWeakRef, WeakRecordUpgrade},
-    seq::{SeqGet, SeqLen, SeqQuickGet, SeqQuickSet, SeqResize, SeqSet},
-    table::TableCreate,
-    tuple::{TupleCreate, TupleFromList},
-};
+use stackargs::StackArgs;
+
+pub use buffer::{BufferCreate, BufferGetSlice, BufferSetSlice};
+pub use call::{Call, Return};
+pub use cmp::Cmp;
+pub use int::{And, Not, Or, Shl, Shr, Xor};
+pub use jump::{Jump, JumpNeg, JumpZero};
+pub use list::{ListCreate, ListGetSlice, ListPop, ListPush};
+pub use literal::{LiteralCreate, LiteralValue, LocalCopy};
+pub use num::{Add, Div, Mul, Neg, Rem, Sub};
+pub use real::{Ceil, Floor, Round, Trunc};
+pub use record::{RecordCreate, RecordFromList, RecordWeakRef, WeakRecordUpgrade};
+pub use seq::{SeqGet, SeqLen, SeqQuickGet, SeqQuickSet, SeqResize, SeqSet};
+pub use table::TableCreate;
+pub use tuple::{TupleCreate, TupleFromList};
 
 pub trait Operation {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError>;
