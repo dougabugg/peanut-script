@@ -9,10 +9,14 @@ pub struct Buffer {
 }
 
 impl Buffer {
-    pub fn new() -> Buffer {
+    pub fn new(v: Vec<u8>) -> Buffer {
         Buffer {
-            items: Rc::new(RefCell::new(Vec::new())),
+            items: Rc::new(RefCell::new(v)),
         }
+    }
+
+    pub fn empty() -> Buffer {
+        Buffer::new(Vec::new())
     }
 
     pub fn len(&self) -> usize {

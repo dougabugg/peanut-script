@@ -17,6 +17,47 @@ pub trait DataIO: BytesIO {
     fn into_bytes(&self) -> Self::Target;
 }
 
+// pub trait DataInput {
+//     type Input: BytesIO;
+//     fn from_bytes(t: Self::Input) -> Option<Self>;
+// }
+
+// impl<T: DataIO + Sized> DataInput for T {
+//     type Input = <T as DataIO>::Target;
+//     fn from_bytes(t: Self::Input) -> Option<Self> {
+//         <T as DataIO>::from_bytes(t)
+//     }
+// }
+
+// pub trait DataOutput {
+//     type Output: BytesIO;
+//     fn into_bytes(&self) -> &Self::Output;
+// }
+
+// impl<T: DataIO + Sized> DataOutput for T {
+//     type Output = <T as DataIO>::Target;
+//     fn into_bytes(&self) -> &Self::Output {
+//         &<T as DataIO>::from_bytes(self)
+//     }
+// }
+
+// impl<T: DataInput + DataOutput + Sized> BytesIO for T {
+//     fn read<'a>(b: &'a [u8]) -> Result<(&'a [u8], Self), BytesReadError<'a>> {
+//         let (b2, t) = <<T as DataInput>::Input as BytesIO>::read(b)?;
+//         let t = match <T as DataInput>::from_bytes(t) {
+//             Some(t) => t,
+//             None => {
+//                 return Err(BytesReadError::InvalidValue(b));
+//             }
+//         };
+//         Ok((b2, t))
+//     }
+//     fn write<'a>(t: &Self, b: &'a mut [u8]) -> Option<&'a mut [u8]> {
+//         let t = <T as DataOutput>::into_bytes(t);
+//         <<T as DataOutput>::Output as BytesIO>::write(&t, b)
+//     }
+// }
+
 impl<T: DataIO + Sized> BytesIO for T {
     fn read<'a>(b: &'a [u8]) -> Result<(&'a [u8], Self), BytesReadError<'a>> {
         let (b2, t) = <<T as DataIO>::Target as BytesIO>::read(b)?;
@@ -31,6 +72,30 @@ impl<T: DataIO + Sized> BytesIO for T {
     fn write<'a>(t: &Self, b: &'a mut [u8]) -> Option<&'a mut [u8]> {
         let t = <T as DataIO>::into_bytes(t);
         <<T as DataIO>::Target as BytesIO>::write(&t, b)
+    }
+}
+
+impl<T: BytesIO> BytesIO for Vec<T> {
+    fn read<'a>(b: &'a [u8]) -> Result<(&'a [u8], Self), BytesReadError<'a>> {
+        let (mut b, len) = <u32 as BytesIO>::read(b)?;
+        let mut acc = Vec::with_capacity(len as usize);
+        for _ in 0..len {
+            let (b2, t) = <T as BytesIO>::read(b)?;
+            acc.push(t);
+            b = b2;
+        }
+        Ok((b, acc))
+    }
+    fn write<'a>(t: &Self, b: &'a mut [u8]) -> Option<&'a mut [u8]> {
+        let len = t.len();
+        if len > u32::MAX as usize {
+            panic!("error: vecs cannot have more than 4294967295 (2^32 - 1) elements");
+        }
+        let mut b = <u32 as BytesIO>::write(&(len as u32), b)?;
+        for i in 0..len {
+            b = <T as BytesIO>::write(unsafe { t.get_unchecked(i) }, b)?;
+        }
+        Some(b)
     }
 }
 
