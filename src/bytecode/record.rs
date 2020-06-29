@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::convert::TryInto;
 
-use crate::datamodel::{List, Record, Value};
+use crate::datamodel::{List, Record, Value, WeakRecord};
 
 use super::{CallFrame, DataIO, OpAction, OpError, Operation, StackArgs};
 
@@ -65,6 +65,21 @@ impl Operation for RecordWeakRef {
             .get_mut(self.out as usize)
             .ok_or(OpError::StackWrite)?;
         *out = weak.into();
+        Ok(OpAction::None)
+    }
+}
+
+new_unary_op!(WeakRecordUpgrade);
+impl Operation for WeakRecordUpgrade {
+    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+        let val: &Value = m.local.get(self.val as usize).ok_or(OpError::StackRead)?;
+        let weak: &WeakRecord = val.try_into()?;
+        let record = weak.upgrade();
+        let out: &mut Value = m
+            .local
+            .get_mut(self.out as usize)
+            .ok_or(OpError::StackWrite)?;
+        *out = record.into();
         Ok(OpAction::None)
     }
 }

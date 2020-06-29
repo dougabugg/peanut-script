@@ -10,7 +10,7 @@ use super::{
     literal::{LiteralCreate, LocalCopy},
     num::{Add, Div, Mul, Neg, Rem, Sub},
     real::{Ceil, Floor, Round, Trunc},
-    record::{RecordCreate, RecordFromList, RecordWeakRef},
+    record::{RecordCreate, RecordFromList, RecordWeakRef, WeakRecordUpgrade},
     table::TableCreate,
     tuple::{TupleCreate, TupleFromList},
 };
@@ -125,7 +125,7 @@ create_op_type!(
     // tuple
     TupleCreate, TupleFromList,
     // record
-    RecordCreate, RecordFromList, RecordWeakRef,
+    RecordCreate, RecordFromList, RecordWeakRef, WeakRecordUpgrade,
     // table
     TableCreate
 );
