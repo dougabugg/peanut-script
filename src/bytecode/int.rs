@@ -32,11 +32,7 @@ impl Operation for Not {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
         let val: &Value = m.load(self.val as usize)?;
         let val = *TryInto::<&Integer>::try_into(val)?;
-        let out: &mut Value = m
-            .local
-            .get_mut(self.out as usize)
-            .ok_or(OpError::StackWrite)?;
-        *out = (!val).into();
+        m.store(self.out as usize, (!val).into())?;
         Ok(OpAction::None)
     }
 }

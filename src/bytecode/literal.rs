@@ -66,16 +66,13 @@ impl DataIO for LiteralCreate {
 
 impl Operation for LiteralCreate {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
-        let out: &mut Value = m
-            .local
-            .get_mut(self.out as usize)
-            .ok_or(OpError::StackWrite)?;
-        *out = match self.val {
+        let val = match self.val {
             LiteralValue::None => Value::None,
             LiteralValue::Bool(bl) => bl.into(),
             LiteralValue::Integer(int) => int.into(),
             LiteralValue::Real(real) => real.into(),
         };
+        m.store(self.out as usize, val)?;
         Ok(OpAction::None)
     }
 }

@@ -50,7 +50,7 @@ impl Operation for ListPop {
         let list: &List = m.load(self.val as usize)?.try_into()?;
         let val = match list.pop() {
             Some(val) => val,
-            None => return Err(OpError::IndexWrite),
+            None => return Err(OpError::IndexRead(0)),
         };
         m.store(self.out as usize, val)?;
         Ok(OpAction::None)
@@ -82,11 +82,9 @@ impl DataIO for ListGetSlice {
 impl Operation for ListGetSlice {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
         let list: &List = m.load(self.list as usize)?.try_into()?;
-        let a = *TryInto::<&i64>::try_into(m.load(self.a as usize)?)?;
-        let b = *TryInto::<&i64>::try_into(m.load(self.b as usize)?)?;
-        let a: usize = a.try_into().or(Err(OpError::IndexRead))?;
-        let b: usize = b.try_into().or(Err(OpError::IndexRead))?;
-        let slice = list.get_slice(a, b).ok_or(OpError::IndexRead)?;
+        let a = *TryInto::<&i64>::try_into(m.load(self.a as usize)?)? as usize;
+        let b = *TryInto::<&i64>::try_into(m.load(self.b as usize)?)? as usize;
+        let slice = list.get_slice(a, b).ok_or(OpError::IndexRead(b))?;
         m.store(self.out as usize, slice.into())?;
         Ok(OpAction::None)
     }

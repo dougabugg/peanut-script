@@ -28,11 +28,12 @@ pub enum OpAction {
 }
 
 pub enum OpError {
-    StackRead,
-    StackWrite,
+    StackRead(usize),
+    StackWrite(usize),
+    IndexRead(usize),
+    IndexWrite(usize),
     IntoType(ValueTryIntoError),
-    IndexRead,
-    IndexWrite,
+    BadType(&'static str),
 }
 
 impl From<ValueTryIntoError> for OpError {

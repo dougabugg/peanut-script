@@ -13,8 +13,8 @@ impl Operation for TableCreate {
         let mut table = Vec::new();
         for val in list.as_slice().iter() {
             let tuple: &Tuple = val.try_into()?;
-            let k: Integer = tuple.get(0).ok_or(OpError::IndexRead)?.try_into()?;
-            let v: Value = tuple.get(1).ok_or(OpError::IndexRead)?;
+            let k: Integer = tuple.get(0).ok_or(OpError::IndexRead(0))?.try_into()?;
+            let v: Value = tuple.get(1).ok_or(OpError::IndexRead(1))?;
             table.push((k as u64, RefCell::new(v)));
         }
         let table = Table::new(table);
