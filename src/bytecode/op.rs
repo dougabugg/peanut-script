@@ -13,6 +13,7 @@ use super::{
     num::{Add, Div, Mul, Neg, Rem, Sub},
     real::{Ceil, Floor, Round, Trunc},
     record::{RecordCreate, RecordFromList, RecordWeakRef, WeakRecordUpgrade},
+    seq::{SeqGet, SeqLen, SeqQuickGet, SeqQuickSet, SeqResize, SeqSet},
     table::TableCreate,
     tuple::{TupleCreate, TupleFromList},
 };
@@ -136,4 +137,5 @@ create_op_type!(
     // buffer
     BufferCreate, BufferGetSlice, BufferSetSlice,
     // seq
+    SeqLen, SeqResize, SeqGet, SeqSet, SeqQuickGet, SeqQuickSet
 );
