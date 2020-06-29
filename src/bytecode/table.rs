@@ -8,7 +8,7 @@ use super::{CallFrame, DataIO, OpAction, OpError, Operation};
 new_unary_op!(TableCreate);
 impl Operation for TableCreate {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
-        let val: &Value = m.local.get(self.val as usize).ok_or(OpError::StackRead)?;
+        let val: &Value = m.load(self.val as usize)?;
         let list: &List = val.try_into()?;
         let mut table = Vec::new();
         for val in list.as_slice().iter() {
@@ -18,11 +18,7 @@ impl Operation for TableCreate {
             table.push((k as u64, RefCell::new(v)));
         }
         let table = Table::new(table);
-        let out: &mut Value = m
-            .local
-            .get_mut(self.out as usize)
-            .ok_or(OpError::StackWrite)?;
-        *out = table.into();
+        m.store(self.out as usize, table.into())?;
         Ok(OpAction::None)
     }
 }

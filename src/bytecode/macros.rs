@@ -6,6 +6,12 @@ macro_rules! new_bin_op {
             pub out: u8,
         }
 
+        impl $name {
+            pub fn new(lhs: u8, rhs: u8, out: u8) -> $name {
+                $name { lhs, rhs, out }
+            }
+        }
+
         impl DataIO for $name {
             type Target = (u8, u8, u8);
             fn from_bytes(t: Self::Target) -> Option<Self> {
@@ -27,6 +33,12 @@ macro_rules! new_unary_op {
         pub struct $name {
             pub val: u8,
             pub out: u8,
+        }
+
+        impl $name {
+            pub fn new(val: u8, out: u8) -> $name {
+                $name { val, out }
+            }
         }
 
         impl DataIO for $name {

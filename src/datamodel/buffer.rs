@@ -21,7 +21,7 @@ impl Buffer {
 
     pub fn resize(&self, len: usize) {
         let mut items = self.items.borrow_mut();
-        items.resize_with(len, || 0);
+        items.resize(len, 0);
     }
 
     pub fn get(&self, index: usize) -> Option<Value> {

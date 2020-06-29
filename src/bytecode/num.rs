@@ -11,8 +11,8 @@ macro_rules! impl_math_op {
         new_bin_op!($name);
         impl Operation for $name {
             fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
-                let lhs: &Value = m.local.get(self.lhs as usize).ok_or(OpError::StackRead)?;
-                let rhs: &Value = m.local.get(self.rhs as usize).ok_or(OpError::StackRead)?;
+                let lhs: &Value = m.load(self.lhs as usize)?;
+                let rhs: &Value = m.load(self.rhs as usize)?;
                 let result = match lhs {
                     Value::Integer(lhs) => {
                         let rhs = *TryInto::<&Integer>::try_into(rhs)?;
@@ -30,11 +30,7 @@ macro_rules! impl_math_op {
                         return Err(OpError::IntoType(e));
                     }
                 };
-                let out: &mut Value = m
-                    .local
-                    .get_mut(self.out as usize)
-                    .ok_or(OpError::StackWrite)?;
-                *out = result;
+                m.store(self.out as usize, result)?;
                 Ok(OpAction::None)
             }
         }
@@ -50,7 +46,7 @@ impl_math_op!(Rem, |lhs, rhs| lhs % rhs);
 new_unary_op!(Neg);
 impl Operation for Neg {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
-        let val: &Value = m.local.get(self.val as usize).ok_or(OpError::StackRead)?;
+        let val: &Value = m.load(self.val as usize)?;
         let val: Value = match val {
             Value::Integer(val) => (-val).into(),
             Value::Real(val) => (-val).into(),
@@ -62,11 +58,7 @@ impl Operation for Neg {
                 return Err(OpError::IntoType(e));
             }
         };
-        let out: &mut Value = m
-            .local
-            .get_mut(self.out as usize)
-            .ok_or(OpError::StackWrite)?;
-        *out = val;
+        m.store(self.out as usize, val)?;
         Ok(OpAction::None)
     }
 }

@@ -6,7 +6,7 @@ use super::{CallFrame, DataIO, OpAction, OpError, Operation, StackArgs};
 
 pub struct TupleCreate {
     items: Vec<u8>,
-    output: u8,
+    out: u8,
 }
 
 impl DataIO for TupleCreate {
@@ -14,11 +14,11 @@ impl DataIO for TupleCreate {
     fn from_bytes(t: Self::Target) -> Option<Self> {
         Some(TupleCreate {
             items: t.0.unwrap(),
-            output: t.1,
+            out: t.1,
         })
     }
     fn into_bytes(&self) -> Self::Target {
-        (StackArgs::new(self.items.clone()), self.output)
+        (StackArgs::new(self.items.clone()), self.out)
     }
 }
 
@@ -26,14 +26,10 @@ impl Operation for TupleCreate {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
         let mut acc = Vec::new();
         for i in &self.items {
-            let item = m.local.get(*i as usize).ok_or(OpError::StackRead)?;
+            let item = m.load(*i as usize)?;
             acc.push(item.clone());
         }
-        let out: &mut Value = m
-            .local
-            .get_mut(self.output as usize)
-            .ok_or(OpError::StackWrite)?;
-        *out = Tuple::new(acc).into();
+        m.store(self.out as usize, Tuple::new(acc).into())?;
         Ok(OpAction::None)
     }
 }
@@ -41,14 +37,10 @@ impl Operation for TupleCreate {
 new_unary_op!(TupleFromList);
 impl Operation for TupleFromList {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
-        let val: &Value = m.local.get(self.val as usize).ok_or(OpError::StackRead)?;
+        let val: &Value = m.load(self.val as usize)?;
         let list: &List = val.try_into()?;
         let record = Tuple::new(list.as_slice().iter().map(|v| v.clone()).collect());
-        let out: &mut Value = m
-            .local
-            .get_mut(self.out as usize)
-            .ok_or(OpError::StackWrite)?;
-        *out = record.into();
+        m.store(self.out as usize, record.into())?;
         Ok(OpAction::None)
     }
 }

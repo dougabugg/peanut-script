@@ -7,7 +7,7 @@ use super::{CallFrame, DataIO, OpAction, OpError, Operation, StackArgs};
 
 pub struct RecordCreate {
     items: Vec<u8>,
-    output: u8,
+    out: u8,
 }
 
 impl DataIO for RecordCreate {
@@ -15,11 +15,11 @@ impl DataIO for RecordCreate {
     fn from_bytes(t: Self::Target) -> Option<Self> {
         Some(RecordCreate {
             items: t.0.unwrap(),
-            output: t.1,
+            out: t.1,
         })
     }
     fn into_bytes(&self) -> Self::Target {
-        (StackArgs::new(self.items.clone()), self.output)
+        (StackArgs::new(self.items.clone()), self.out)
     }
 }
 
@@ -27,14 +27,10 @@ impl Operation for RecordCreate {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
         let mut acc = Vec::new();
         for i in &self.items {
-            let item = m.local.get(*i as usize).ok_or(OpError::StackRead)?;
+            let item = m.load(*i as usize)?;
             acc.push(RefCell::new(item.clone()));
         }
-        let out: &mut Value = m
-            .local
-            .get_mut(self.output as usize)
-            .ok_or(OpError::StackWrite)?;
-        *out = Record::new(acc).into();
+        m.store(self.out as usize, Record::new(acc).into())?;
         Ok(OpAction::None)
     }
 }
@@ -42,14 +38,10 @@ impl Operation for RecordCreate {
 new_unary_op!(RecordFromList);
 impl Operation for RecordFromList {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
-        let val: &Value = m.local.get(self.val as usize).ok_or(OpError::StackRead)?;
+        let val: &Value = m.load(self.val as usize)?;
         let list: &List = val.try_into()?;
         let record = Record::from_iter(list.as_slice().iter().map(|v| v.clone()));
-        let out: &mut Value = m
-            .local
-            .get_mut(self.out as usize)
-            .ok_or(OpError::StackWrite)?;
-        *out = record.into();
+        m.store(self.out as usize, record.into())?;
         Ok(OpAction::None)
     }
 }
@@ -57,14 +49,10 @@ impl Operation for RecordFromList {
 new_unary_op!(RecordWeakRef);
 impl Operation for RecordWeakRef {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
-        let val: &Value = m.local.get(self.val as usize).ok_or(OpError::StackRead)?;
+        let val: &Value = m.load(self.val as usize)?;
         let record: &Record = val.try_into()?;
         let weak = record.downgrade();
-        let out: &mut Value = m
-            .local
-            .get_mut(self.out as usize)
-            .ok_or(OpError::StackWrite)?;
-        *out = weak.into();
+        m.store(self.out as usize, weak.into())?;
         Ok(OpAction::None)
     }
 }
@@ -72,14 +60,10 @@ impl Operation for RecordWeakRef {
 new_unary_op!(WeakRecordUpgrade);
 impl Operation for WeakRecordUpgrade {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
-        let val: &Value = m.local.get(self.val as usize).ok_or(OpError::StackRead)?;
+        let val: &Value = m.load(self.val as usize)?;
         let weak: &WeakRecord = val.try_into()?;
         let record = weak.upgrade();
-        let out: &mut Value = m
-            .local
-            .get_mut(self.out as usize)
-            .ok_or(OpError::StackWrite)?;
-        *out = record.into();
+        m.store(self.out as usize, record.into())?;
         Ok(OpAction::None)
     }
 }

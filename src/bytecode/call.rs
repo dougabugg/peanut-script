@@ -26,14 +26,11 @@ impl DataIO for Call {
 
 impl Operation for Call {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
-        let target = m
-            .local
-            .get(self.target as usize)
-            .ok_or(OpError::StackRead)?;
+        let target = m.load(self.target as usize)?;
         let target: Function = TryInto::<&Function>::try_into(target)?.clone();
         let mut args = Vec::new();
         for i in &self.args {
-            let val = m.local.get(*i as usize).ok_or(OpError::StackRead)?.clone();
+            let val = m.load(*i as usize)?.clone();
             args.push(val);
         }
         m.output = self.output;
@@ -57,11 +54,7 @@ impl DataIO for Return {
 
 impl Operation for Return {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
-        let output = m
-            .local
-            .get(self.output as usize)
-            .ok_or(OpError::StackRead)?
-            .clone();
+        let output = m.load(self.output as usize)?.clone();
         Ok(OpAction::Return(output))
     }
 }

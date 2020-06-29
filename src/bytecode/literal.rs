@@ -5,13 +5,8 @@ use super::{BytesIO, BytesReadError, CallFrame, DataIO, OpAction, OpError, Opera
 new_unary_op!(LocalCopy);
 impl Operation for LocalCopy {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
-        let val: &Value = m.local.get(self.val as usize).ok_or(OpError::StackRead)?;
-        let val = val.clone();
-        let out: &mut Value = m
-            .local
-            .get_mut(self.out as usize)
-            .ok_or(OpError::StackWrite)?;
-        *out = val;
+        let val = m.load(self.val as usize)?.clone();
+        m.store(self.out as usize, val)?;
         Ok(OpAction::None)
     }
 }

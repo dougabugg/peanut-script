@@ -42,7 +42,7 @@ impl DataIO for JumpZero {
 
 impl Operation for JumpZero {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
-        let val: &Value = m.local.get(self.val as usize).ok_or(OpError::StackRead)?;
+        let val: &Value = m.load(self.val as usize)?;
         let is_zero = match val {
             Value::None => true,
             Value::Integer(i) => *i == 0,
@@ -77,7 +77,7 @@ impl DataIO for JumpNeg {
 
 impl Operation for JumpNeg {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
-        let val: &Value = m.local.get(self.val as usize).ok_or(OpError::StackRead)?;
+        let val: &Value = m.load(self.val as usize)?;
         let is_zero = match val {
             Value::Integer(i) => *i < 0,
             Value::Real(r) => *r < 0.0,

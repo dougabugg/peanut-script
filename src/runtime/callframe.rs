@@ -1,5 +1,5 @@
+use crate::bytecode::OpError;
 use crate::datamodel::Value;
-// use crate::bytecode::OpError;
 
 pub struct CallFrame<'a> {
     pub parent: Option<&'a CallFrame<'a>>,
@@ -9,12 +9,14 @@ pub struct CallFrame<'a> {
     pub output: u8,
 }
 
-// impl<'a> CallFrame<'a> {
-//     fn load(&self, index: usize) -> Result<&Value, OpError> {
-//         self.local.get(i as usize).ok_or(OpError::StackRead)
-//     }
+impl<'a> CallFrame<'a> {
+    pub fn load(&self, index: usize) -> Result<&Value, OpError> {
+        self.local.get(index).ok_or(OpError::StackRead)
+    }
 
-//     fn load_mut(&mut self, index: usize) -> Result<&mut Value, OpError> {
-//         self.local.get_mut(i as usize).ok_or(OpError::StackRead)
-//     }
-// }
+    pub fn store(&mut self, index: usize, val: Value) -> Result<(), OpError> {
+        let out = self.local.get_mut(index).ok_or(OpError::StackWrite)?;
+        *out = val;
+        Ok(())
+    }
+}

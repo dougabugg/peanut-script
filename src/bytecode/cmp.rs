@@ -10,18 +10,12 @@ use super::{CallFrame, DataIO, OpAction, OpError, Operation};
 new_bin_op!(Cmp);
 impl Operation for Cmp {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
-        let lhs: &Value = m.local.get(self.lhs as usize).ok_or(OpError::StackRead)?;
-        let rhs: &Value = m.local.get(self.rhs as usize).ok_or(OpError::StackRead)?;
+        let lhs: &Value = m.load(self.lhs as usize)?;
+        let rhs: &Value = m.load(self.rhs as usize)?;
         let result = match lhs {
             Value::None => match rhs {
                 Value::None => Ordering::Equal.into(),
-                _ => {
-                    let e = ValueTryIntoError {
-                        found: rhs.get_inner_type_name(),
-                        expected: Value::None.get_inner_type_name(),
-                    };
-                    return Err(OpError::IntoType(e));
-                }
+                _ => Ordering::Less.into(),
             },
             Value::Bool(lhs) => lhs.cmp(rhs.try_into()?).into(),
             Value::Integer(lhs) => lhs.cmp(rhs.try_into()?).into(),
@@ -53,11 +47,7 @@ impl Operation for Cmp {
                 .cmp(&TryInto::<&Unknown>::try_into(rhs)?.identity())
                 .into(),
         };
-        let out: &mut Value = m
-            .local
-            .get_mut(self.out as usize)
-            .ok_or(OpError::StackWrite)?;
-        *out = result;
+        m.store(self.out as usize, result)?;
         Ok(OpAction::None)
     }
 }

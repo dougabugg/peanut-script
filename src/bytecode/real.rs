@@ -9,13 +9,9 @@ macro_rules! impl_real_op {
         new_unary_op!($name);
         impl Operation for $name {
             fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
-                let val: &Value = m.local.get(self.val as usize).ok_or(OpError::StackRead)?;
+                let val: &Value = m.load(self.val as usize)?;
                 let val = *TryInto::<&Real>::try_into(val)?;
-                let out: &mut Value = m
-                    .local
-                    .get_mut(self.out as usize)
-                    .ok_or(OpError::StackWrite)?;
-                *out = $e(val).into();
+                m.store(self.out as usize, $e(val).into())?;
                 Ok(OpAction::None)
             }
         }

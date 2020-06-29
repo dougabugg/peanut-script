@@ -1,5 +1,6 @@
 use std::any::Any;
 use std::cmp::Ordering;
+use std::convert::TryInto;
 use std::rc::Rc;
 
 use super::{Buffer, Function, List, Record, Table, Tuple, WeakRecord};
@@ -86,7 +87,7 @@ macro_rules! enum_impl_conversion {
             }
         }
 
-        impl std::convert::TryInto< $t > for Value {
+        impl TryInto< $t > for Value {
             type Error = ValueTryIntoError;
             fn try_into(self) -> Result<$t, Self::Error> {
                 match self {
@@ -99,7 +100,7 @@ macro_rules! enum_impl_conversion {
             }
         }
 
-        impl<'a> std::convert::TryInto< &'a $t > for &'a Value {
+        impl<'a> TryInto< &'a $t > for &'a Value {
             type Error = ValueTryIntoError;
             fn try_into(self) -> Result<&'a $t, Self::Error> {
                 match self {

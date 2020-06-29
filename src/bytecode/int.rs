@@ -9,13 +9,12 @@ macro_rules! impl_int_op {
         new_bin_op!($name);
         impl Operation for $name {
             fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
-                let lhs: &Value = m.local.get(self.lhs as usize).ok_or(OpError::StackRead)?;
-                let rhs: &Value = m.local.get(self.rhs as usize).ok_or(OpError::StackRead)?;
+                let lhs: &Value = m.load(self.lhs as usize)?;
+                let rhs: &Value = m.load(self.rhs as usize)?;
                 let lhs = *TryInto::<&Integer>::try_into(lhs)?;
                 let rhs = *TryInto::<&Integer>::try_into(rhs)?;
                 let result = $e(lhs, rhs).into();
-                let out: &mut Value = m.local.get_mut(self.out as usize).ok_or(OpError::StackWrite)?;
-                *out = result;
+                m.store(self.out as usize, result)?;
                 Ok(OpAction::None)
             }
         }
@@ -31,7 +30,7 @@ impl_int_op!(Xor, |lhs, rhs| lhs ^ rhs);
 new_unary_op!(Not);
 impl Operation for Not {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
-        let val: &Value = m.local.get(self.val as usize).ok_or(OpError::StackRead)?;
+        let val: &Value = m.load(self.val as usize)?;
         let val = *TryInto::<&Integer>::try_into(val)?;
         let out: &mut Value = m
             .local
