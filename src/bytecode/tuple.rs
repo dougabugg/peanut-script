@@ -1,6 +1,6 @@
 use std::convert::TryInto;
 
-use crate::datamodel::{List, Record, Value};
+use crate::datamodel::{List, Tuple, Value};
 
 use super::{CallFrame, DataIO, OpAction, OpError, Operation, StackArgs};
 
@@ -29,16 +29,21 @@ impl Operation for TupleCreate {
             let item = m.local.get(*i as usize).ok_or(OpError::StackRead)?;
             acc.push(item.clone());
         }
+        let out: &mut Value = m
+            .local
+            .get_mut(self.output as usize)
+            .ok_or(OpError::StackWrite)?;
+        *out = Tuple::new(acc).into();
         Ok(OpAction::None)
     }
 }
 
-new_unary_op!(RecordFromList);
-impl Operation for RecordFromList {
+new_unary_op!(TupleFromList);
+impl Operation for TupleFromList {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
         let val: &Value = m.local.get(self.val as usize).ok_or(OpError::StackRead)?;
         let list: &List = val.try_into()?;
-        let record = Record::from_iter(list.as_slice().iter().map(|v| v.clone()));
+        let record = Tuple::new(list.as_slice().iter().map(|v| v.clone()).collect());
         let out: &mut Value = m
             .local
             .get_mut(self.out as usize)
