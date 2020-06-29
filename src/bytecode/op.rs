@@ -1,6 +1,19 @@
-use super::CallFrame;
+use super::{BytesIO, BytesReadError, CallFrame};
 
 use crate::datamodel::{Function, Value, ValueTryIntoError};
+
+use super::{
+    call::{Call, Return},
+    cmp::Cmp,
+    int::{And, Not, Or, Shl, Shr, Xor},
+    jump::{Jump, JumpNeg, JumpZero},
+    literal::{LiteralCreate, LocalCopy},
+    num::{Add, Div, Mul, Neg, Rem, Sub},
+    real::{Ceil, Floor, Round, Trunc},
+    record::{RecordCreate, RecordFromList, RecordWeakRef},
+    table::TableCreate,
+    tuple::{TupleCreate, TupleFromList},
+};
 
 pub trait Operation {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError>;
@@ -96,3 +109,23 @@ macro_rules! create_op_type {
         )+
     };
 }
+
+#[rustfmt::skip]
+create_op_type!(
+    // num
+    Add, Sub, Mul, Div, Rem, Neg,
+    // int
+    Shl, Shr, And, Or, Xor, Not,
+    // cmp and real
+    Cmp, Floor, Ceil, Trunc, Round,
+    // call and jump
+    Call, Return, Jump, JumpZero, JumpNeg,
+    // literal
+    LocalCopy, LiteralCreate,
+    // tuple
+    TupleCreate, TupleFromList,
+    // record
+    RecordCreate, RecordFromList, RecordWeakRef,
+    // table
+    TableCreate
+);
