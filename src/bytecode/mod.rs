@@ -6,6 +6,7 @@ mod stackargs;
 mod io;
 #[macro_use]
 mod op;
+mod buffer;
 mod call;
 mod cmp;
 mod int;

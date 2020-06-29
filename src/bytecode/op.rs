@@ -3,6 +3,7 @@ use super::{BytesIO, BytesReadError, CallFrame};
 use crate::datamodel::{Function, Value, ValueTryIntoError};
 
 use super::{
+    buffer::{BufferCreate, BufferGetSlice, BufferSetSlice},
     call::{Call, Return},
     cmp::Cmp,
     int::{And, Not, Or, Shl, Shr, Xor},
@@ -131,7 +132,8 @@ create_op_type!(
     // table
     TableCreate,
     // list
-    ListCreate, ListPush, ListPop, ListGetSlice
+    ListCreate, ListPush, ListPop, ListGetSlice,
     // buffer
+    BufferCreate, BufferGetSlice, BufferSetSlice,
     // seq
 );
