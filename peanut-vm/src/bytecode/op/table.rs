@@ -23,4 +23,28 @@ impl Operation for TableCreate {
     }
 }
 
-// TODO table get and set
+new_bin_op!(TableGet);
+impl Operation for TableGet {
+    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+        let table: &Table = m.load(self.lhs as usize)?.try_into()?;
+        let key: &Integer = m.load(self.rhs as usize)?.try_into()?;
+        let val = table.get(*key as u64).unwrap_or(Value::None);
+        m.store(self.out as usize, val)?;
+        Ok(OpAction::None)
+    }
+}
+
+new_bin_op!(TableSet);
+impl Operation for TableSet {
+    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+        let table: &Table = m.load(self.lhs as usize)?.try_into()?;
+        let key: &Integer = m.load(self.rhs as usize)?.try_into()?;
+        let val = m.load(self.out as usize)?;
+        // just pass 0 instead of `*key as usize` because on 32-bit platforms it
+        // would truncate the value
+        table
+            .set(*key as u64, val.clone())
+            .ok_or(OpError::IndexWrite(0))?;
+        Ok(OpAction::None)
+    }
+}

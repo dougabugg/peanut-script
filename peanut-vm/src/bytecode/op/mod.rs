@@ -36,7 +36,7 @@ pub use num::{Add, Div, Mul, Neg, Rem, Sub};
 pub use real::{Ceil, Floor, Round, Trunc};
 pub use record::{RecordCreate, RecordFromList, RecordWeakRef, WeakRecordUpgrade};
 pub use seq::{SeqAppend, SeqGet, SeqLen, SeqQuickGet, SeqQuickSet, SeqResize, SeqSet, SeqToList};
-pub use table::TableCreate;
+pub use table::{TableCreate, TableGet, TableSet};
 pub use tuple::{TupleCreate, TupleFromList};
 
 pub trait Operation {
@@ -153,7 +153,7 @@ create_op_type!(
     // record
     RecordCreate, RecordFromList, RecordWeakRef, WeakRecordUpgrade,
     // table
-    TableCreate,
+    TableCreate, TableGet, TableSet,
     // list
     ListCreate, ListPush, ListPop, ListGetSlice,
     // buffer

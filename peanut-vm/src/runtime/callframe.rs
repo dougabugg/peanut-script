@@ -1,22 +1,21 @@
 use crate::bytecode::OpError;
-use crate::datamodel::Value;
+use crate::datamodel::{Function, Value};
 
 pub struct CallFrame<'a> {
     pub parent: Option<&'a CallFrame<'a>>,
-    pub bytecode: &'a [u8],
+    pub function: Function,
     pub cursor: usize,
-    pub local: Vec<Value>,
-    pub output: u8,
+    pub stack: Vec<Value>,
 }
 
 impl<'a> CallFrame<'a> {
     pub fn load(&self, index: usize) -> Result<&Value, OpError> {
-        self.local.get(index).ok_or(OpError::StackRead(index))
+        self.stack.get(index).ok_or(OpError::StackRead(index))
     }
 
     pub fn store(&mut self, index: usize, val: Value) -> Result<(), OpError> {
         let out = self
-            .local
+            .stack
             .get_mut(index)
             .ok_or(OpError::StackWrite(index))?;
         *out = val;
