@@ -17,7 +17,7 @@ impl DataIO for Jump {
 }
 
 impl Operation for Jump {
-    fn exec<'a>(&self, _: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, _: &mut CallFrame) -> Result<OpAction, OpError> {
         Ok(OpAction::Jump(self.dest as usize))
     }
 }
@@ -41,7 +41,7 @@ impl DataIO for JumpZero {
 }
 
 impl Operation for JumpZero {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let val: &Value = m.load(self.val as usize)?;
         let is_zero = match val {
             Value::None => true,
@@ -76,7 +76,7 @@ impl DataIO for JumpNeg {
 }
 
 impl Operation for JumpNeg {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let val: &Value = m.load(self.val as usize)?;
         let is_zero = match val {
             Value::Integer(i) => *i < 0,

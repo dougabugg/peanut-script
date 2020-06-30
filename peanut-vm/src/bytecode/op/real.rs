@@ -8,7 +8,7 @@ macro_rules! impl_real_op {
     ($name:ident, $e:expr) => {
         new_unary_op!($name);
         impl Operation for $name {
-            fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+            fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
                 let val: &Value = m.load(self.val as usize)?;
                 let val = *TryInto::<&Real>::try_into(val)?;
                 m.store(self.out as usize, $e(val).into())?;

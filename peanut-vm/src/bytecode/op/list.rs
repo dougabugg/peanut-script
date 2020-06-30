@@ -23,7 +23,7 @@ impl DataIO for ListCreate {
 }
 
 impl Operation for ListCreate {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let mut acc = Vec::new();
         for i in &self.items {
             let item = m.load(*i as usize)?;
@@ -36,7 +36,7 @@ impl Operation for ListCreate {
 
 new_unary_op!(ListPush);
 impl Operation for ListPush {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let list: &List = m.load(self.val as usize)?.try_into()?;
         let val: &Value = m.load(self.out as usize)?;
         list.push(val.clone());
@@ -46,7 +46,7 @@ impl Operation for ListPush {
 
 new_unary_op!(ListPop);
 impl Operation for ListPop {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let list: &List = m.load(self.val as usize)?.try_into()?;
         let val = match list.pop() {
             Some(val) => val,
@@ -80,7 +80,7 @@ impl DataIO for ListGetSlice {
 }
 
 impl Operation for ListGetSlice {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let list: &List = m.load(self.list as usize)?.try_into()?;
         let a = *TryInto::<&i64>::try_into(m.load(self.a as usize)?)? as usize;
         let b = *TryInto::<&i64>::try_into(m.load(self.b as usize)?)? as usize;
@@ -115,7 +115,7 @@ impl Operation for ListGetSlice {
 // }
 
 // impl Operation for ListSetSlice {
-//     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+//     fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
 //         let list: &List = m.load(self.list as usize)?.try_into()?;
 //         let src: &List = m.load(self.src as usize)?.try_into()?;
 //         let src_offset: i64 = *m.load(self.src_offset as usize)?.try_into()?;

@@ -23,7 +23,7 @@ impl DataIO for TupleCreate {
 }
 
 impl Operation for TupleCreate {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let mut acc = Vec::new();
         for i in &self.items {
             let item = m.load(*i as usize)?;
@@ -36,7 +36,7 @@ impl Operation for TupleCreate {
 
 new_unary_op!(TupleFromList);
 impl Operation for TupleFromList {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let val: &Value = m.load(self.val as usize)?;
         let list: &List = val.try_into()?;
         let record = Tuple::new(list.as_slice().iter().map(|v| v.clone()).collect());

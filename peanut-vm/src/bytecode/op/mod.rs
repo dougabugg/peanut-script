@@ -40,7 +40,7 @@ pub use table::{TableCreate, TableGet, TableSet};
 pub use tuple::{TupleCreate, TupleFromList};
 
 pub trait Operation {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError>;
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError>;
 }
 
 pub enum OpAction {
@@ -88,7 +88,7 @@ macro_rules! create_op_type {
         }
 
         impl Operation for Op {
-            fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+            fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
                 match self {
                     $(
                         Op::$op(op) => op.exec(m)

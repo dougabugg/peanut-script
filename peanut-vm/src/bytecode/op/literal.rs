@@ -4,7 +4,7 @@ use super::{BytesIO, BytesReadError, CallFrame, DataIO, OpAction, OpError, Opera
 
 new_unary_op!(LocalCopy);
 impl Operation for LocalCopy {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let val = m.load(self.val as usize)?.clone();
         m.store(self.out as usize, val)?;
         Ok(OpAction::None)
@@ -76,7 +76,7 @@ impl DataIO for LiteralCreate {
 }
 
 impl Operation for LiteralCreate {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let val = match self.val {
             LiteralValue::None => Value::None,
             LiteralValue::Bool(bl) => bl.into(),

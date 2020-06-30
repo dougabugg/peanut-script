@@ -23,7 +23,7 @@ impl DataIO for Call {
 }
 
 impl Operation for Call {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let target = m.load(self.target as usize)?;
         let mut args = Vec::new();
         for i in &self.args {
@@ -53,7 +53,7 @@ impl DataIO for Return {
 }
 
 impl Operation for Return {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let output = m.load(self.output as usize)?.clone();
         Ok(OpAction::Return(output))
     }

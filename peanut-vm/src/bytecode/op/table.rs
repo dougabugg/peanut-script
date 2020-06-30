@@ -7,7 +7,7 @@ use super::{CallFrame, DataIO, OpAction, OpError, Operation};
 
 new_unary_op!(TableCreate);
 impl Operation for TableCreate {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let val: &Value = m.load(self.val as usize)?;
         let list: &List = val.try_into()?;
         let mut table = Vec::new();
@@ -25,7 +25,7 @@ impl Operation for TableCreate {
 
 new_bin_op!(TableGet);
 impl Operation for TableGet {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let table: &Table = m.load(self.lhs as usize)?.try_into()?;
         let key: &Integer = m.load(self.rhs as usize)?.try_into()?;
         let val = table.get(*key as u64).unwrap_or(Value::None);
@@ -36,7 +36,7 @@ impl Operation for TableGet {
 
 new_bin_op!(TableSet);
 impl Operation for TableSet {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let table: &Table = m.load(self.lhs as usize)?.try_into()?;
         let key: &Integer = m.load(self.rhs as usize)?.try_into()?;
         let val = m.load(self.out as usize)?;

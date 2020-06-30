@@ -10,7 +10,7 @@ macro_rules! impl_math_op {
     ($name:ident, $e:expr) => {
         new_bin_op!($name);
         impl Operation for $name {
-            fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+            fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
                 let lhs: &Value = m.load(self.lhs as usize)?;
                 let rhs: &Value = m.load(self.rhs as usize)?;
                 let result = match lhs {
@@ -45,7 +45,7 @@ impl_math_op!(Rem, |lhs, rhs| lhs % rhs);
 
 new_unary_op!(Neg);
 impl Operation for Neg {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let val: &Value = m.load(self.val as usize)?;
         let val: Value = match val {
             Value::Integer(val) => (-val).into(),

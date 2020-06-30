@@ -9,7 +9,7 @@ use super::{CallFrame, DataIO, OpAction, OpError, Operation};
 
 new_bin_op!(Cmp);
 impl Operation for Cmp {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let lhs: &Value = m.load(self.lhs as usize)?;
         let rhs: &Value = m.load(self.rhs as usize)?;
         let result = match lhs {

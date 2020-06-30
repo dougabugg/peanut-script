@@ -6,7 +6,7 @@ use super::{CallFrame, DataIO, OpAction, OpError, Operation};
 
 new_unary_op!(SeqLen);
 impl Operation for SeqLen {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let seq = m.load(self.val as usize)?;
         let len = match seq {
             Value::Tuple(t) => t.len(),
@@ -23,7 +23,7 @@ impl Operation for SeqLen {
 
 new_unary_op!(SeqResize);
 impl Operation for SeqResize {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let seq = m.load(self.val as usize)?;
         let len = *TryInto::<&i64>::try_into(m.load(self.out as usize)?)? as usize;
         match seq {
@@ -37,7 +37,7 @@ impl Operation for SeqResize {
 
 new_bin_op!(SeqGet);
 impl Operation for SeqGet {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let seq = m.load(self.lhs as usize)?;
         let index = *TryInto::<&i64>::try_into(m.load(self.rhs as usize)?)? as usize;
         let val = match seq {
@@ -56,7 +56,7 @@ impl Operation for SeqGet {
 
 new_bin_op!(SeqQuickGet);
 impl Operation for SeqQuickGet {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let seq = m.load(self.lhs as usize)?;
         let index = self.rhs as usize;
         let val = match seq {
@@ -75,7 +75,7 @@ impl Operation for SeqQuickGet {
 
 new_bin_op!(SeqSet);
 impl Operation for SeqSet {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let seq = m.load(self.lhs as usize)?;
         let index = *TryInto::<&i64>::try_into(m.load(self.rhs as usize)?)? as usize;
         let val = m.load(self.out as usize)?;
@@ -94,7 +94,7 @@ impl Operation for SeqSet {
 
 new_bin_op!(SeqQuickSet);
 impl Operation for SeqQuickSet {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let seq = m.load(self.lhs as usize)?;
         let index = self.rhs as usize;
         let val = m.load(self.out as usize)?;
@@ -124,7 +124,7 @@ fn seq_to_vec(seq: &Value) -> Result<Vec<Value>, OpError> {
 
 new_unary_op!(SeqToList);
 impl Operation for SeqToList {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let seq = m.load(self.val as usize)?;
         let list = List::new(seq_to_vec(seq)?);
         m.store(self.out as usize, list.into())?;
@@ -134,7 +134,7 @@ impl Operation for SeqToList {
 
 new_bin_op!(SeqAppend);
 impl Operation for SeqAppend {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let seq = m.load(self.lhs as usize)?;
         let src = m.load(self.rhs as usize)?;
         match seq {

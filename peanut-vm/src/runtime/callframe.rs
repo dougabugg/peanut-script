@@ -1,14 +1,14 @@
 use crate::bytecode::OpError;
 use crate::datamodel::{Function, Value};
 
-pub struct CallFrame<'a> {
-    pub parent: Option<&'a CallFrame<'a>>,
+pub struct CallFrame {
+    pub parent: Option<Box<CallFrame>>,
     pub function: Function,
     pub cursor: usize,
     pub stack: Vec<Value>,
 }
 
-impl<'a> CallFrame<'a> {
+impl CallFrame {
     pub fn load(&self, index: usize) -> Result<&Value, OpError> {
         self.stack.get(index).ok_or(OpError::StackRead(index))
     }

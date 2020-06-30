@@ -6,7 +6,7 @@ use super::{CallFrame, DataIO, OpAction, OpError, Operation};
 
 new_unary_op!(BufferCreate);
 impl Operation for BufferCreate {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let len = *TryInto::<&i64>::try_into(m.load(self.val as usize)?)?;
         let val = Buffer::empty();
         val.resize(len as usize);
@@ -38,7 +38,7 @@ impl DataIO for BufferGetSlice {
 }
 
 impl Operation for BufferGetSlice {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let buffer: &Buffer = m.load(self.buffer as usize)?.try_into()?;
         let a = *TryInto::<&i64>::try_into(m.load(self.a as usize)?)? as usize;
         let b = *TryInto::<&i64>::try_into(m.load(self.b as usize)?)? as usize;
@@ -79,7 +79,7 @@ impl DataIO for BufferSetSlice {
 }
 
 impl Operation for BufferSetSlice {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let buffer: &Buffer = m.load(self.buffer as usize)?.try_into()?;
         let src: &Buffer = m.load(self.src as usize)?.try_into()?;
         let src_offset = *TryInto::<&i64>::try_into(m.load(self.src_offset as usize)?)? as usize;

@@ -24,7 +24,7 @@ impl DataIO for RecordCreate {
 }
 
 impl Operation for RecordCreate {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let mut acc = Vec::new();
         for i in &self.items {
             let item = m.load(*i as usize)?;
@@ -37,7 +37,7 @@ impl Operation for RecordCreate {
 
 new_unary_op!(RecordFromList);
 impl Operation for RecordFromList {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let val: &Value = m.load(self.val as usize)?;
         let list: &List = val.try_into()?;
         let record = Record::from_iter(list.as_slice().iter().map(|v| v.clone()));
@@ -48,7 +48,7 @@ impl Operation for RecordFromList {
 
 new_unary_op!(RecordWeakRef);
 impl Operation for RecordWeakRef {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let val: &Value = m.load(self.val as usize)?;
         let record: &Record = val.try_into()?;
         let weak = record.downgrade();
@@ -59,7 +59,7 @@ impl Operation for RecordWeakRef {
 
 new_unary_op!(WeakRecordUpgrade);
 impl Operation for WeakRecordUpgrade {
-    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
         let val: &Value = m.load(self.val as usize)?;
         let weak: &WeakRecord = val.try_into()?;
         let record = weak.upgrade();
