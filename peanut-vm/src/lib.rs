@@ -1,3 +1,3 @@
-mod bytecode;
-mod datamodel;
-mod runtime;
+pub mod bytecode;
+pub mod datamodel;
+pub mod runtime;

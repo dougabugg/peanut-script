@@ -26,6 +26,10 @@ impl Record {
         Record::new(v)
     }
 
+    pub fn iter(&self) -> impl Iterator<Item = Value> + '_ {
+        self.items.iter().map(|r| r.borrow().clone())
+    }
+
     pub fn downgrade(&self) -> WeakRecord {
         WeakRecord {
             weakref: Rc::downgrade(&self.items),
@@ -50,12 +54,6 @@ impl Identity for Record {
         Rc::as_ptr(&self.items).cast::<RefCell<Value>>() as usize
     }
 }
-
-/*
-TODO IDEA for handling cycles. impl Drop for Record to check if the items Rc has no other strong refs.
-if no more strong refs, then inform allocator to remove the records Weak ref from it's list, so it can be
-de-allocated. When a record is created, it is added to the
-*/
 
 #[derive(Clone)]
 pub struct WeakRecord {

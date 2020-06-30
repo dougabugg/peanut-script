@@ -83,6 +83,10 @@ impl List {
     pub fn pop(&self) -> Option<Value> {
         self.items.borrow_mut().pop()
     }
+
+    pub fn append(&self, mut t: Vec<Value>) {
+        self.items.borrow_mut().append(&mut t);
+    }
 }
 
 impl Identity for List {

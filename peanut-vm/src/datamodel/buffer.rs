@@ -1,4 +1,4 @@
-use std::cell::RefCell;
+use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 
 use super::{Identity, Value};
@@ -17,6 +17,10 @@ impl Buffer {
 
     pub fn empty() -> Buffer {
         Buffer::new(Vec::new())
+    }
+
+    pub fn as_slice(&self) -> Ref<[u8]> {
+        Ref::map(self.items.borrow(), |items| &items[..])
     }
 
     pub fn len(&self) -> usize {
@@ -68,6 +72,13 @@ impl Buffer {
             dst.copy_from_slice(src.items.borrow().get(src_offset..len + src_offset)?);
         }
         Some(())
+    }
+
+    pub fn append(&self, t: &[u8]) {
+        let mut b = self.items.borrow_mut();
+        let len = b.len();
+        b.resize(len + t.len(), 0);
+        b[len..].copy_from_slice(t);
     }
 }
 

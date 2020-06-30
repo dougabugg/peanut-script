@@ -35,7 +35,7 @@ pub use literal::{LiteralCreate, LiteralValue, LocalCopy};
 pub use num::{Add, Div, Mul, Neg, Rem, Sub};
 pub use real::{Ceil, Floor, Round, Trunc};
 pub use record::{RecordCreate, RecordFromList, RecordWeakRef, WeakRecordUpgrade};
-pub use seq::{SeqGet, SeqLen, SeqQuickGet, SeqQuickSet, SeqResize, SeqSet};
+pub use seq::{SeqAppend, SeqGet, SeqLen, SeqQuickGet, SeqQuickSet, SeqResize, SeqSet, SeqToList};
 pub use table::TableCreate;
 pub use tuple::{TupleCreate, TupleFromList};
 
@@ -90,7 +90,7 @@ macro_rules! create_op_type {
             fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
                 match self {
                     $(
-                        Op::$op(op) => Operation::exec(op, m)// op.exec(m)
+                        Op::$op(op) => op.exec(m)
                     ),+
                 }
             }
@@ -158,5 +158,5 @@ create_op_type!(
     // buffer
     BufferCreate, BufferGetSlice, BufferSetSlice,
     // seq
-    SeqLen, SeqResize, SeqGet, SeqSet, SeqQuickGet, SeqQuickSet
+    SeqLen, SeqResize, SeqGet, SeqSet, SeqQuickGet, SeqQuickSet, SeqToList, SeqAppend
 );

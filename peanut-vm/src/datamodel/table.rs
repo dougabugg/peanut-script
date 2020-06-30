@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use super::{Identity, Value};
+use super::{Identity, Record, Value};
 
 #[derive(Clone)]
 pub struct Table {
@@ -19,6 +19,19 @@ impl Table {
     pub fn from_iter(iter: impl Iterator<Item = (u64, Value)>) -> Table {
         let items = iter.map(|(k, v)| (k, RefCell::new(v))).collect();
         Table::new(items)
+    }
+
+    pub fn to_vec(&self) -> Vec<Value> {
+        self.items
+            .iter()
+            .map(|(key, val)| {
+                Record::new(vec![
+                    RefCell::new((*key as i64).into()),
+                    RefCell::new(val.borrow().clone()),
+                ])
+                .into()
+            })
+            .collect()
     }
 
     fn get_cell(&self, key: u64) -> Option<&RefCell<Value>> {

@@ -1,6 +1,6 @@
 use std::convert::TryInto;
 
-use crate::datamodel::Value;
+use crate::datamodel::{Identity, List, Value};
 
 use super::{CallFrame, DataIO, OpAction, OpError, Operation};
 
@@ -111,4 +111,54 @@ impl Operation for SeqQuickSet {
     }
 }
 
-// TODO seq to list, and seq expand (for list and buffer)
+fn seq_to_vec(seq: &Value) -> Result<Vec<Value>, OpError> {
+    Ok(match seq {
+        Value::Tuple(t) => t.as_slice().to_vec(),
+        Value::Record(t) => t.iter().collect(),
+        Value::Table(t) => t.to_vec(),
+        Value::List(t) => t.as_slice().to_vec(),
+        Value::Buffer(t) => t.as_slice().iter().map(|b| (*b as i64).into()).collect(),
+        _ => return Err(OpError::BadType(seq.get_inner_type_name())),
+    })
+}
+
+new_unary_op!(SeqToList);
+impl Operation for SeqToList {
+    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+        let seq = m.load(self.val as usize)?;
+        let list = List::new(seq_to_vec(seq)?);
+        m.store(self.out as usize, list.into())?;
+        Ok(OpAction::None)
+    }
+}
+
+new_bin_op!(SeqAppend);
+impl Operation for SeqAppend {
+    fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
+        let seq = m.load(self.lhs as usize)?;
+        let src = m.load(self.rhs as usize)?;
+        match seq {
+            Value::List(list) => {
+                list.append(seq_to_vec(src)?);
+            }
+            Value::Buffer(buffer) => match src {
+                Value::Buffer(src) => {
+                    if buffer.identity() == src.identity() {
+                        buffer.append(&src.as_slice().to_vec());
+                    } else {
+                        buffer.append(&src.as_slice());
+                    }
+                }
+                _ => {
+                    let mut acc = Vec::new();
+                    for val in seq_to_vec(src)?.into_iter() {
+                        acc.push(TryInto::<i64>::try_into(val)? as u8)
+                    }
+                    buffer.append(&acc);
+                }
+            },
+            _ => return Err(OpError::BadType(seq.get_inner_type_name())),
+        }
+        Ok(OpAction::None)
+    }
+}
