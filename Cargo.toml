@@ -1,7 +1,2 @@
-[package]
-name = "peanut-script"
-version = "0.1.0"
-authors = ["doug"]
-edition = "2018"
-
-[dependencies]
+[workspace]
+members = ["peanut-vm"]
