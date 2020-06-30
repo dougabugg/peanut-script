@@ -10,6 +10,8 @@ pub type Integer = i64;
 pub type Real = f64;
 pub type Unknown = Rc<dyn Any>;
 
+pub type NativeFn = fn(Vec<Value>) -> Value;
+
 #[derive(Clone)]
 pub enum Value {
     None,
@@ -23,6 +25,7 @@ pub enum Value {
     List(List),
     Buffer(Buffer),
     Function(Function),
+    NativeFn(NativeFn),
     Unknown(Unknown),
 }
 
@@ -40,7 +43,26 @@ impl Value {
             Value::List(_) => "List",
             Value::Buffer(_) => "Buffer",
             Value::Function(_) => "Function",
+            Value::NativeFn(_) => "NativeFn",
             Value::Unknown(_) => "Unknown",
+        }
+    }
+
+    pub fn get_inner_type(&self) -> i64 {
+        match self {
+            Value::None => 0,
+            Value::Bool(_) => 1,
+            Value::Integer(_) => 2,
+            Value::Real(_) => 3,
+            Value::Tuple(_) => 4,
+            Value::Record(_) => 5,
+            Value::WeakRecord(_) => 6,
+            Value::Table(_) => 7,
+            Value::List(_) => 8,
+            Value::Buffer(_) => 9,
+            Value::Function(_) => 10,
+            Value::NativeFn(_) => 11,
+            Value::Unknown(_) => 12,
         }
     }
 }
@@ -119,5 +141,6 @@ macro_rules! enum_impl_conversion {
 }
 
 enum_impl_conversion!(
-    Bool, Integer, Real, Tuple, Record, WeakRecord, Table, List, Buffer, Function, Unknown
+    Bool, Integer, Real, Tuple, Record, WeakRecord, Table, List, Buffer, Function, NativeFn,
+    Unknown
 );

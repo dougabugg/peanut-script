@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use std::convert::TryInto;
 
 use crate::datamodel::{
-    Buffer, Function, Identity, List, Table, Tuple, Unknown, Value, ValueTryIntoError,
+    Buffer, Function, Identity, List, NativeFn, Table, Tuple, Unknown, Value, ValueTryIntoError,
 };
 
 use super::{CallFrame, DataIO, OpAction, OpError, Operation};
@@ -42,6 +42,7 @@ impl Operation for Cmp {
                 .identity()
                 .cmp(&TryInto::<&Function>::try_into(rhs)?.identity())
                 .into(),
+            Value::NativeFn(lhs) => lhs.cmp(TryInto::<&NativeFn>::try_into(rhs)?).into(),
             Value::Unknown(lhs) => lhs
                 .identity()
                 .cmp(&TryInto::<&Unknown>::try_into(rhs)?.identity())

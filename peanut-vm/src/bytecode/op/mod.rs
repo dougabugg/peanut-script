@@ -21,7 +21,7 @@ use super::{BytesIO, BytesReadError, DataIO};
 
 use crate::runtime::CallFrame;
 
-use crate::datamodel::{Function, Value, ValueTryIntoError};
+use crate::datamodel::{Function, NativeFn, Value, ValueTryIntoError};
 
 use stackargs::StackArgs;
 
@@ -46,7 +46,8 @@ pub trait Operation {
 pub enum OpAction {
     None,
     Jump(usize),
-    Call(Function, Vec<Value>),
+    Call(Function, Vec<Value>, u8),
+    CallNative(NativeFn, Vec<Value>, u8),
     Return(Value),
 }
 

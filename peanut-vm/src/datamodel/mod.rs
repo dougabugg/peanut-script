@@ -12,4 +12,4 @@ pub use list::List;
 pub use record::{Record, WeakRecord};
 pub use table::Table;
 pub use tuple::Tuple;
-pub use value::{Bool, Identity, Integer, Real, Unknown, Value, ValueTryIntoError};
+pub use value::{Bool, Identity, Integer, NativeFn, Real, Unknown, Value, ValueTryIntoError};

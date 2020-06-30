@@ -1,6 +1,4 @@
-use std::convert::TryInto;
-
-use crate::datamodel::Function;
+use crate::datamodel::Value;
 
 use super::{CallFrame, DataIO, OpAction, OpError, Operation, StackArgs};
 
@@ -27,14 +25,16 @@ impl DataIO for Call {
 impl Operation for Call {
     fn exec<'a>(&self, m: &mut CallFrame<'a>) -> Result<OpAction, OpError> {
         let target = m.load(self.target as usize)?;
-        let target: Function = TryInto::<&Function>::try_into(target)?.clone();
         let mut args = Vec::new();
         for i in &self.args {
             let val = m.load(*i as usize)?.clone();
             args.push(val);
         }
-        m.output = self.output;
-        Ok(OpAction::Call(target, args))
+        match target {
+            Value::Function(t) => Ok(OpAction::Call(t.clone(), args, self.output)),
+            Value::NativeFn(t) => Ok(OpAction::CallNative(*t, args, self.output)),
+            _ => Err(OpError::BadType(target.get_inner_type_name())),
+        }
     }
 }
 
