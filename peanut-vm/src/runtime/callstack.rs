@@ -13,7 +13,9 @@ impl CallStack {
     }
 
     pub fn load(&self, index: u8) -> Result<&Value, OpError> {
-        self.stack.get(index as usize).ok_or(OpError::StackRead(index))
+        self.stack
+            .get(index as usize)
+            .ok_or(OpError::StackRead(index))
     }
 
     pub fn store(&mut self, index: u8, val: Value) -> Result<(), OpError> {

@@ -12,7 +12,7 @@ pub struct VirtualMachine {
 impl VirtualMachine {
     pub fn new(func: Function) -> VirtualMachine {
         VirtualMachine {
-            frame: Some(Box::new(CallFrame::new(func)))
+            frame: Some(Box::new(CallFrame::new(func))),
         }
     }
 
@@ -63,7 +63,7 @@ impl VirtualMachine {
                     }
                     None => {
                         self.frame = None;
-                        return Ok(VmState::Exited(val))
+                        return Ok(VmState::Exited(val));
                     }
                 }
             }
