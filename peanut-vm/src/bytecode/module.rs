@@ -1,4 +1,4 @@
-use super::op::LiteralValue;
+use super::ops::LiteralValue;
 use super::{BytesIO, BytesReadError, Function};
 
 use crate::datamodel::{Buffer, Function as FuncVal, Record, Value};

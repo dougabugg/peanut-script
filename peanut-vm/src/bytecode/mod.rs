@@ -2,6 +2,7 @@ mod function;
 mod io;
 mod module;
 mod op;
+pub mod ops;
 mod program;
 
 pub use io::{BytesIO, BytesReadError, DataIO};
