@@ -38,17 +38,9 @@ impl Operation for Call {
     }
 }
 
-pub struct Return {
-    output: u8,
-}
-
-impl DataIO for Return {
-    type Target = u8;
-    fn from_bytes(output: Self::Target) -> Option<Self> {
-        Some(Return { output })
-    }
-    fn into_bytes(&self) -> Self::Target {
-        self.output
+new_op! {
+    pub struct Return {
+        output: u8,
     }
 }
 

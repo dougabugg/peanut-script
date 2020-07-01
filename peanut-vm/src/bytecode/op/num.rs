@@ -17,11 +17,11 @@ macro_rules! impl_math_op {
                     Value::Integer(lhs) => {
                         let rhs = *TryInto::<&Integer>::try_into(rhs)?;
                         $e(lhs, rhs).into()
-                    },
+                    }
                     Value::Real(lhs) => {
                         let rhs = *TryInto::<&Real>::try_into(rhs)?;
                         $e(lhs, rhs).into()
-                    },
+                    }
                     _ => {
                         let e = ValueTryIntoError {
                             found: lhs.get_inner_type_name(),

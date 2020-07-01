@@ -60,18 +60,10 @@ impl BytesIO for LiteralValue {
     }
 }
 
-pub struct LiteralCreate {
-    val: LiteralValue,
-    out: u8,
-}
-
-impl DataIO for LiteralCreate {
-    type Target = (LiteralValue, u8);
-    fn from_bytes(t: Self::Target) -> Option<Self> {
-        Some(LiteralCreate { val: t.0, out: t.1 })
-    }
-    fn into_bytes(&self) -> Self::Target {
-        (self.val, self.out)
+new_op! {
+    pub struct LiteralCreate {
+        val: LiteralValue,
+        out: u8,
     }
 }
 

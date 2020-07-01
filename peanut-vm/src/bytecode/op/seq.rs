@@ -73,12 +73,19 @@ impl Operation for SeqQuickGet {
     }
 }
 
-new_bin_op!(SeqSet);
+new_op! {
+    pub struct SeqSet {
+        seq: u8,
+        index: u8,
+        val: u8,
+    }
+}
+
 impl Operation for SeqSet {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let seq = m.load(self.lhs)?;
-        let index = *TryInto::<&i64>::try_into(m.load(self.rhs)?)? as usize;
-        let val = m.load(self.out)?;
+        let seq = m.load(self.seq)?;
+        let index = *TryInto::<&i64>::try_into(m.load(self.index)?)? as usize;
+        let val = m.load(self.val)?;
         match seq {
             Value::List(t) => t
                 .set(index, val.clone())
@@ -92,12 +99,19 @@ impl Operation for SeqSet {
     }
 }
 
-new_bin_op!(SeqQuickSet);
+new_op! {
+    pub struct SeqQuickSet {
+        seq: u8,
+        index: u8,
+        val: u8,
+    }
+}
+
 impl Operation for SeqQuickSet {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let seq = m.load(self.lhs)?;
-        let index = self.rhs as usize;
-        let val = m.load(self.out)?;
+        let seq = m.load(self.seq)?;
+        let index = self.index as usize;
+        let val = m.load(self.val)?;
         match seq {
             Value::List(t) => t
                 .set(index, val.clone())
@@ -132,11 +146,17 @@ impl Operation for SeqToList {
     }
 }
 
-new_unary_op!(SeqAppend);
+new_op! {
+    pub struct SeqAppend {
+        seq: u8,
+        src: u8,
+    }
+}
+
 impl Operation for SeqAppend {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let seq = m.load(self.val)?;
-        let src = m.load(self.out)?;
+        let seq = m.load(self.seq)?;
+        let src = m.load(self.src)?;
         match seq {
             Value::List(list) => {
                 list.append(seq_to_vec(src)?);

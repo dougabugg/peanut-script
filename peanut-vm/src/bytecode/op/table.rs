@@ -34,12 +34,19 @@ impl Operation for TableGet {
     }
 }
 
-new_bin_op!(TableSet);
+new_op! {
+    pub struct TableSet {
+        table: u8,
+        key: u8,
+        val: u8,
+    }
+}
+
 impl Operation for TableSet {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let table: &Table = m.load(self.lhs)?.try_into()?;
-        let key: &Integer = m.load(self.rhs)?.try_into()?;
-        let val = m.load(self.out)?;
+        let table: &Table = m.load(self.table)?.try_into()?;
+        let key: &Integer = m.load(self.key)?.try_into()?;
+        let val = m.load(self.val)?;
         // just pass 0 instead of `*key as usize` because on 32-bit platforms it
         // would truncate the value
         table

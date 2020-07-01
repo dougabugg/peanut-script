@@ -2,17 +2,9 @@ use crate::datamodel::Value;
 
 use super::{CallStack, DataIO, OpAction, OpError, Operation};
 
-pub struct Jump {
-    dest: u32,
-}
-
-impl DataIO for Jump {
-    type Target = u32;
-    fn from_bytes(t: Self::Target) -> Option<Self> {
-        Some(Jump { dest: t })
-    }
-    fn into_bytes(&self) -> Self::Target {
-        self.dest
+new_op! {
+    pub struct Jump {
+        dest: u32,
     }
 }
 
@@ -22,21 +14,10 @@ impl Operation for Jump {
     }
 }
 
-pub struct JumpZero {
-    val: u8,
-    dest: u32,
-}
-
-impl DataIO for JumpZero {
-    type Target = (u8, u32);
-    fn from_bytes(t: Self::Target) -> Option<Self> {
-        Some(JumpZero {
-            val: t.0,
-            dest: t.1,
-        })
-    }
-    fn into_bytes(&self) -> Self::Target {
-        (self.val, self.dest)
+new_op! {
+    pub struct JumpZero {
+        val: u8,
+        dest: u32,
     }
 }
 
@@ -57,21 +38,10 @@ impl Operation for JumpZero {
     }
 }
 
-pub struct JumpNeg {
-    val: u8,
-    dest: u32,
-}
-
-impl DataIO for JumpNeg {
-    type Target = (u8, u32);
-    fn from_bytes(t: Self::Target) -> Option<Self> {
-        Some(JumpNeg {
-            val: t.0,
-            dest: t.1,
-        })
-    }
-    fn into_bytes(&self) -> Self::Target {
-        (self.val, self.dest)
+new_op! {
+    pub struct JumpNeg {
+        val: u8,
+        dest: u32,
     }
 }
 

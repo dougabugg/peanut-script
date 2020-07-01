@@ -53,4 +53,29 @@ macro_rules! new_unary_op {
     };
 }
 
-// TODO make a macro to create structs with arbitrary fields
+macro_rules! new_op {
+    ($(#[$meta:meta])* $v:vis struct $name:ident { $($fv:vis $field:ident : $type:ty),+ $(,)? }) => {
+        $(#[$meta])*
+        $v struct $name {
+            $($fv $field : $type),+
+        }
+
+        impl $name {
+            pub fn new($($field : $type),+) -> $name {
+                $name { $($field),+ }
+            }
+        }
+
+        #[allow(unused_parens)]
+        impl DataIO for $name {
+            type Target = ($($type),+);
+            fn from_bytes(t: Self::Target) -> Option<Self> {
+                let ($($field),+) = t;
+                Some($name { $($field),+ })
+            }
+            fn into_bytes(&self) -> Self::Target {
+                ($(self.$field),+)
+            }
+        }
+    };
+}

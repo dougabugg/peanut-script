@@ -34,11 +34,17 @@ impl Operation for ListCreate {
     }
 }
 
-new_unary_op!(ListPush);
+new_op! {
+    pub struct ListPush {
+        list: u8,
+        val: u8,
+    }
+}
+
 impl Operation for ListPush {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let list: &List = m.load(self.val)?.try_into()?;
-        let val: &Value = m.load(self.out)?;
+        let list: &List = m.load(self.list)?.try_into()?;
+        let val: &Value = m.load(self.val)?;
         list.push(val.clone());
         Ok(OpAction::None)
     }
@@ -57,25 +63,12 @@ impl Operation for ListPop {
     }
 }
 
-pub struct ListGetSlice {
-    list: u8,
-    a: u8,
-    b: u8,
-    out: u8,
-}
-
-impl DataIO for ListGetSlice {
-    type Target = (u8, u8, u8, u8);
-    fn from_bytes(t: Self::Target) -> Option<Self> {
-        Some(ListGetSlice {
-            list: t.0,
-            a: t.1,
-            b: t.2,
-            out: t.3,
-        })
-    }
-    fn into_bytes(&self) -> Self::Target {
-        (self.list, self.a, self.b, self.out)
+new_op! {
+    pub struct ListGetSlice {
+        list: u8,
+        a: u8,
+        b: u8,
+        out: u8,
     }
 }
 

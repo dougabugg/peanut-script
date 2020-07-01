@@ -15,25 +15,12 @@ impl Operation for BufferCreate {
     }
 }
 
-pub struct BufferGetSlice {
-    buffer: u8,
-    a: u8,
-    b: u8,
-    out: u8,
-}
-
-impl DataIO for BufferGetSlice {
-    type Target = (u8, u8, u8, u8);
-    fn from_bytes(t: Self::Target) -> Option<Self> {
-        Some(BufferGetSlice {
-            buffer: t.0,
-            a: t.1,
-            b: t.2,
-            out: t.3,
-        })
-    }
-    fn into_bytes(&self) -> Self::Target {
-        (self.buffer, self.a, self.b, self.out)
+new_op! {
+    pub struct BufferGetSlice {
+        buffer: u8,
+        a: u8,
+        b: u8,
+        out: u8,
     }
 }
 
@@ -48,33 +35,13 @@ impl Operation for BufferGetSlice {
     }
 }
 
-pub struct BufferSetSlice {
-    buffer: u8,
-    src: u8,
-    src_offset: u8,
-    offset: u8,
-    len: u8,
-}
-
-impl DataIO for BufferSetSlice {
-    type Target = (u8, u8, u8, u8, u8);
-    fn from_bytes(t: Self::Target) -> Option<Self> {
-        Some(BufferSetSlice {
-            buffer: t.0,
-            src: t.1,
-            src_offset: t.2,
-            offset: t.3,
-            len: t.4,
-        })
-    }
-    fn into_bytes(&self) -> Self::Target {
-        (
-            self.buffer,
-            self.src,
-            self.src_offset,
-            self.offset,
-            self.len,
-        )
+new_op! {
+    pub struct BufferSetSlice {
+        buffer: u8,
+        src: u8,
+        src_offset: u8,
+        offset: u8,
+        len: u8,
     }
 }
 
