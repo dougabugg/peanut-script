@@ -1,6 +1,6 @@
 use crate::datamodel::Value;
 
-use super::{CallFrame, DataIO, OpAction, OpError, Operation};
+use super::{CallStack, DataIO, OpAction, OpError, Operation};
 
 pub struct Jump {
     dest: u32,
@@ -17,7 +17,7 @@ impl DataIO for Jump {
 }
 
 impl Operation for Jump {
-    fn exec(&self, _: &mut CallFrame) -> Result<OpAction, OpError> {
+    fn exec(&self, _: &mut CallStack) -> Result<OpAction, OpError> {
         Ok(OpAction::Jump(self.dest as usize))
     }
 }
@@ -41,8 +41,8 @@ impl DataIO for JumpZero {
 }
 
 impl Operation for JumpZero {
-    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
-        let val: &Value = m.load(self.val as usize)?;
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
+        let val: &Value = m.load(self.val)?;
         let is_zero = match val {
             Value::None => true,
             Value::Integer(i) => *i == 0,
@@ -76,8 +76,8 @@ impl DataIO for JumpNeg {
 }
 
 impl Operation for JumpNeg {
-    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
-        let val: &Value = m.load(self.val as usize)?;
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
+        let val: &Value = m.load(self.val)?;
         let is_zero = match val {
             Value::Integer(i) => *i < 0,
             Value::Real(r) => *r < 0.0,

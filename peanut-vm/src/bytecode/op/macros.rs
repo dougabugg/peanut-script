@@ -52,3 +52,5 @@ macro_rules! new_unary_op {
         }
     };
 }
+
+// TODO make a macro to create structs with arbitrary fields

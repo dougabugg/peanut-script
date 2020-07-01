@@ -1,6 +1,6 @@
 use crate::datamodel::Value;
 
-use super::{CallFrame, DataIO, OpAction, OpError, Operation, StackArgs};
+use super::{CallStack, DataIO, OpAction, OpError, Operation, StackArgs};
 
 pub struct Call {
     target: u8,
@@ -23,11 +23,11 @@ impl DataIO for Call {
 }
 
 impl Operation for Call {
-    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
-        let target = m.load(self.target as usize)?;
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
+        let target = m.load(self.target)?;
         let mut args = Vec::new();
         for i in &self.args {
-            let val = m.load(*i as usize)?.clone();
+            let val = m.load(*i)?.clone();
             args.push(val);
         }
         match target {
@@ -53,8 +53,8 @@ impl DataIO for Return {
 }
 
 impl Operation for Return {
-    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
-        let output = m.load(self.output as usize)?.clone();
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
+        let output = m.load(self.output)?.clone();
         Ok(OpAction::Return(output))
     }
 }

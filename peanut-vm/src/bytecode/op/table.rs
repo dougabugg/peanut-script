@@ -3,12 +3,12 @@ use std::convert::TryInto;
 
 use crate::datamodel::{Integer, List, Table, Tuple, Value};
 
-use super::{CallFrame, DataIO, OpAction, OpError, Operation};
+use super::{CallStack, DataIO, OpAction, OpError, Operation};
 
 new_unary_op!(TableCreate);
 impl Operation for TableCreate {
-    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
-        let val: &Value = m.load(self.val as usize)?;
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
+        let val: &Value = m.load(self.val)?;
         let list: &List = val.try_into()?;
         let mut table = Vec::new();
         for val in list.as_slice().iter() {
@@ -18,28 +18,28 @@ impl Operation for TableCreate {
             table.push((k as u64, RefCell::new(v)));
         }
         let table = Table::new(table);
-        m.store(self.out as usize, table.into())?;
+        m.store(self.out, table.into())?;
         Ok(OpAction::None)
     }
 }
 
 new_bin_op!(TableGet);
 impl Operation for TableGet {
-    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
-        let table: &Table = m.load(self.lhs as usize)?.try_into()?;
-        let key: &Integer = m.load(self.rhs as usize)?.try_into()?;
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
+        let table: &Table = m.load(self.lhs)?.try_into()?;
+        let key: &Integer = m.load(self.rhs)?.try_into()?;
         let val = table.get(*key as u64).unwrap_or(Value::None);
-        m.store(self.out as usize, val)?;
+        m.store(self.out, val)?;
         Ok(OpAction::None)
     }
 }
 
 new_bin_op!(TableSet);
 impl Operation for TableSet {
-    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
-        let table: &Table = m.load(self.lhs as usize)?.try_into()?;
-        let key: &Integer = m.load(self.rhs as usize)?.try_into()?;
-        let val = m.load(self.out as usize)?;
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
+        let table: &Table = m.load(self.lhs)?.try_into()?;
+        let key: &Integer = m.load(self.rhs)?.try_into()?;
+        let val = m.load(self.out)?;
         // just pass 0 instead of `*key as usize` because on 32-bit platforms it
         // would truncate the value
         table

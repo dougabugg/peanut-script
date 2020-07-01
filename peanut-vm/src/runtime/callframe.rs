@@ -1,35 +1,45 @@
-use crate::bytecode::OpError;
+use crate::bytecode::{OpAction, OpError, Operation};
 use crate::datamodel::{Function, Value};
+
+use super::CallStack;
 
 pub struct CallFrame {
     pub parent: Option<Box<CallFrame>>,
     pub function: Function,
     pub cursor: usize,
-    pub stack: Vec<Value>,
+    pub stack: CallStack,
+    pub output: u8,
 }
 
 impl CallFrame {
     pub fn new(function: Function) -> CallFrame {
-        let mut stack = Vec::new();
-        stack.resize_with(function.stack_size as usize, || Value::None);
+        let stack = CallStack::new(function.stack_size);
         CallFrame {
             parent: None,
             function,
             cursor: 0,
-            stack
+            stack,
+            output: 0,
         }
     }
 
-    pub fn load(&self, index: usize) -> Result<&Value, OpError> {
-        self.stack.get(index).ok_or(OpError::StackRead(index))
+    pub fn load(&self, index: u8) -> Result<&Value, OpError> {
+        self.stack.load(index)
     }
 
-    pub fn store(&mut self, index: usize, val: Value) -> Result<(), OpError> {
-        let out = self
-            .stack
-            .get_mut(index)
-            .ok_or(OpError::StackWrite(index))?;
-        *out = val;
-        Ok(())
+    pub fn store(&mut self, index: u8, val: Value) -> Result<(), OpError> {
+        self.stack.store(index, val)
+    }
+
+    pub fn jump(&mut self, index: usize) {
+        self.cursor = index;
+    }
+
+    pub fn exec(&mut self) -> Result<OpAction, OpError> {
+        let op = match self.function.ops.get(self.cursor) {
+            Some(op) => op.clone(),
+            None => return Ok(OpAction::Return(Value::None)),
+        };
+        op.exec(&mut self.stack)
     }
 }

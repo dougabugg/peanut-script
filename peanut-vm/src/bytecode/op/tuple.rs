@@ -2,7 +2,7 @@ use std::convert::TryInto;
 
 use crate::datamodel::{List, Tuple, Value};
 
-use super::{CallFrame, DataIO, OpAction, OpError, Operation, StackArgs};
+use super::{CallStack, DataIO, OpAction, OpError, Operation, StackArgs};
 
 pub struct TupleCreate {
     items: Vec<u8>,
@@ -23,24 +23,24 @@ impl DataIO for TupleCreate {
 }
 
 impl Operation for TupleCreate {
-    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
         let mut acc = Vec::new();
         for i in &self.items {
-            let item = m.load(*i as usize)?;
+            let item = m.load(*i)?;
             acc.push(item.clone());
         }
-        m.store(self.out as usize, Tuple::new(acc).into())?;
+        m.store(self.out, Tuple::new(acc).into())?;
         Ok(OpAction::None)
     }
 }
 
 new_unary_op!(TupleFromList);
 impl Operation for TupleFromList {
-    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
-        let val: &Value = m.load(self.val as usize)?;
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
+        let val: &Value = m.load(self.val)?;
         let list: &List = val.try_into()?;
         let record = Tuple::new(list.as_slice().iter().map(|v| v.clone()).collect());
-        m.store(self.out as usize, record.into())?;
+        m.store(self.out, record.into())?;
         Ok(OpAction::None)
     }
 }

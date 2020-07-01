@@ -3,7 +3,7 @@ use std::convert::TryInto;
 
 use crate::datamodel::{List, Record, Value, WeakRecord};
 
-use super::{CallFrame, DataIO, OpAction, OpError, Operation, StackArgs};
+use super::{CallStack, DataIO, OpAction, OpError, Operation, StackArgs};
 
 pub struct RecordCreate {
     items: Vec<u8>,
@@ -24,46 +24,46 @@ impl DataIO for RecordCreate {
 }
 
 impl Operation for RecordCreate {
-    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
         let mut acc = Vec::new();
         for i in &self.items {
-            let item = m.load(*i as usize)?;
+            let item = m.load(*i)?;
             acc.push(RefCell::new(item.clone()));
         }
-        m.store(self.out as usize, Record::new(acc).into())?;
+        m.store(self.out, Record::new(acc).into())?;
         Ok(OpAction::None)
     }
 }
 
 new_unary_op!(RecordFromList);
 impl Operation for RecordFromList {
-    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
-        let val: &Value = m.load(self.val as usize)?;
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
+        let val: &Value = m.load(self.val)?;
         let list: &List = val.try_into()?;
         let record = Record::from_iter(list.as_slice().iter().map(|v| v.clone()));
-        m.store(self.out as usize, record.into())?;
+        m.store(self.out, record.into())?;
         Ok(OpAction::None)
     }
 }
 
 new_unary_op!(RecordWeakRef);
 impl Operation for RecordWeakRef {
-    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
-        let val: &Value = m.load(self.val as usize)?;
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
+        let val: &Value = m.load(self.val)?;
         let record: &Record = val.try_into()?;
         let weak = record.downgrade();
-        m.store(self.out as usize, weak.into())?;
+        m.store(self.out, weak.into())?;
         Ok(OpAction::None)
     }
 }
 
 new_unary_op!(WeakRecordUpgrade);
 impl Operation for WeakRecordUpgrade {
-    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
-        let val: &Value = m.load(self.val as usize)?;
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
+        let val: &Value = m.load(self.val)?;
         let weak: &WeakRecord = val.try_into()?;
         let record = weak.upgrade();
-        m.store(self.out as usize, record.into())?;
+        m.store(self.out, record.into())?;
         Ok(OpAction::None)
     }
 }

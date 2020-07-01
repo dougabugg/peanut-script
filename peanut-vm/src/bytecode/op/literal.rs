@@ -1,12 +1,12 @@
 use crate::datamodel::Value;
 
-use super::{BytesIO, BytesReadError, CallFrame, DataIO, OpAction, OpError, Operation};
+use super::{BytesIO, BytesReadError, CallStack, DataIO, OpAction, OpError, Operation};
 
 new_unary_op!(LocalCopy);
 impl Operation for LocalCopy {
-    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
-        let val = m.load(self.val as usize)?.clone();
-        m.store(self.out as usize, val)?;
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
+        let val = m.load(self.val)?.clone();
+        m.store(self.out, val)?;
         Ok(OpAction::None)
     }
 }
@@ -76,14 +76,14 @@ impl DataIO for LiteralCreate {
 }
 
 impl Operation for LiteralCreate {
-    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
         let val = match self.val {
             LiteralValue::None => Value::None,
             LiteralValue::Bool(bl) => bl.into(),
             LiteralValue::Integer(int) => int.into(),
             LiteralValue::Real(real) => real.into(),
         };
-        m.store(self.out as usize, val)?;
+        m.store(self.out, val)?;
         Ok(OpAction::None)
     }
 }

@@ -5,13 +5,13 @@ use crate::datamodel::{
     Buffer, Function, Identity, List, NativeFn, Table, Tuple, Unknown, Value, ValueTryIntoError,
 };
 
-use super::{CallFrame, DataIO, OpAction, OpError, Operation};
+use super::{CallStack, DataIO, OpAction, OpError, Operation};
 
 new_bin_op!(Cmp);
 impl Operation for Cmp {
-    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
-        let lhs: &Value = m.load(self.lhs as usize)?;
-        let rhs: &Value = m.load(self.rhs as usize)?;
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
+        let lhs: &Value = m.load(self.lhs)?;
+        let rhs: &Value = m.load(self.rhs)?;
         let result = match lhs {
             Value::None => match rhs {
                 Value::None => Ordering::Equal.into(),
@@ -48,7 +48,7 @@ impl Operation for Cmp {
                 .cmp(&TryInto::<&Unknown>::try_into(rhs)?.identity())
                 .into(),
         };
-        m.store(self.out as usize, result)?;
+        m.store(self.out, result)?;
         Ok(OpAction::None)
     }
 }

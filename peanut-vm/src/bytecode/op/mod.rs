@@ -19,7 +19,7 @@ mod tuple;
 
 use super::{BytesIO, BytesReadError, DataIO};
 
-use crate::runtime::CallFrame;
+use crate::runtime::CallStack;
 
 use crate::datamodel::{Function, NativeFn, Value, ValueTryIntoError};
 
@@ -40,7 +40,7 @@ pub use table::{TableCreate, TableGet, TableSet};
 pub use tuple::{TupleCreate, TupleFromList};
 
 pub trait Operation {
-    fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError>;
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError>;
 }
 
 pub enum OpAction {
@@ -52,8 +52,8 @@ pub enum OpAction {
 }
 
 pub enum OpError {
-    StackRead(usize),
-    StackWrite(usize),
+    StackRead(u8),
+    StackWrite(u8),
     IndexRead(usize),
     IndexWrite(usize),
     IntoType(ValueTryIntoError),
@@ -88,7 +88,7 @@ macro_rules! create_op_type {
         }
 
         impl Operation for Op {
-            fn exec(&self, m: &mut CallFrame) -> Result<OpAction, OpError> {
+            fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
                 match self {
                     $(
                         Op::$op(op) => op.exec(m)
