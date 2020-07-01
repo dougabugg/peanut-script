@@ -1,6 +1,6 @@
 use super::{BytesIO, BytesReadError};
 
-use crate::runtime::CallStack;
+use crate::CallStack;
 
 use crate::datamodel::{Function, NativeFn, Value, ValueTryIntoError};
 

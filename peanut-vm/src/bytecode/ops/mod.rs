@@ -19,7 +19,7 @@ mod tuple;
 
 use super::{BytesIO, BytesReadError, DataIO, OpAction, OpError, Operation};
 
-use crate::runtime::CallStack;
+use crate::CallStack;
 
 use stackargs::StackArgs;
 

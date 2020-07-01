@@ -23,10 +23,6 @@ impl CallFrame {
         }
     }
 
-    pub fn load(&self, index: u8) -> Result<&Value, OpError> {
-        self.stack.load(index)
-    }
-
     pub fn store(&mut self, index: u8, val: Value) -> Result<(), OpError> {
         self.stack.store(index, val)
     }
