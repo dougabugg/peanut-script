@@ -1,5 +1,5 @@
 [package]
-name = "peanut-script-parser"
+name = "peanut-script-compiler"
 version = "0.1.0"
 authors = ["doug"]
 edition = "2018"
