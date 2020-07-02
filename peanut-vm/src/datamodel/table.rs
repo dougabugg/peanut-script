@@ -42,7 +42,7 @@ impl Table {
         let mut items = self.items.borrow_mut();
         match items.binary_search_by_key(&key, |(k, _)| *k) {
             Ok(index) => {
-                if value.get_inner_type() == 0 {
+                if value.get_inner_type() == Value::None.get_inner_type() {
                     Some(items.remove(index).1)
                 } else {
                     let item = &mut unsafe { items.get_unchecked_mut(index) }.1;
@@ -51,7 +51,7 @@ impl Table {
                 }
             }
             Err(index) => {
-                if value.get_inner_type() != 0 {
+                if value.get_inner_type() != Value::None.get_inner_type() {
                     items.insert(index, (key, value));
                 }
                 None

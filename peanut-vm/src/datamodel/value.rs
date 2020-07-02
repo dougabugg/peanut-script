@@ -12,56 +12,76 @@ pub type Unknown = Rc<dyn Any>;
 
 pub type NativeFn = fn(Vec<Value>) -> Value;
 
-#[derive(Clone)]
-pub enum Value {
-    None,
-    Bool(Bool),
-    Integer(Integer),
-    Real(Real),
-    Tuple(Tuple),
-    TupleWeak(TupleWeak),
-    Table(Table),
-    List(List),
-    Buffer(Buffer),
-    Function(Function),
-    NativeFn(NativeFn),
-    Unknown(Unknown),
+macro_rules! create_value_enum {
+    ($($n:ident),+) => {
+        #[derive(Clone)]
+        pub enum Value {
+            None,
+            $($n($n)),+
+        }
+
+        #[repr(u8)]
+        #[derive(PartialEq)]
+        pub enum ValueType {
+            None,
+            $($n),+
+        }
+
+        impl Value {
+            pub fn get_inner_type_name(&self) -> &'static str {
+                match self {
+                    Value::None => "None",
+                    $(Value::$n(_) => stringify!($n)),+
+                }
+            }
+
+            pub fn get_inner_type(&self) -> ValueType {
+                match self {
+                    Value::None => ValueType::None,
+                    $(Value::$n(_) => ValueType::$n),+
+                }
+            }
+        }
+
+        $(create_value_enum!(conversion $n);)+
+    };
+    (conversion $t:ident) => {
+        impl From< $t > for Value {
+            fn from(t: $t ) -> Self {
+                Value:: $t (t)
+            }
+        }
+
+        impl TryInto< $t > for Value {
+            type Error = ValueTryIntoError;
+            fn try_into(self) -> Result<$t, Self::Error> {
+                match self {
+                    Value :: $t (t) => Ok(t),
+                    _ => Err(ValueTryIntoError {
+                        found: self.get_inner_type_name(),
+                        expected: stringify!($t),
+                    }),
+                }
+            }
+        }
+
+        impl<'a> TryInto< &'a $t > for &'a Value {
+            type Error = ValueTryIntoError;
+            fn try_into(self) -> Result<&'a $t, Self::Error> {
+                match self {
+                    Value :: $t (t) => Ok(t),
+                    _ => Err(ValueTryIntoError {
+                        found: self.get_inner_type_name(),
+                        expected: stringify!($t),
+                    }),
+                }
+            }
+        }
+    };
 }
 
-impl Value {
-    pub fn get_inner_type_name(&self) -> &'static str {
-        match self {
-            Value::None => "None",
-            Value::Bool(_) => "Bool",
-            Value::Integer(_) => "Integer",
-            Value::Real(_) => "Real",
-            Value::Tuple(_) => "Tuple",
-            Value::TupleWeak(_) => "TupleWeak",
-            Value::Table(_) => "Table",
-            Value::List(_) => "List",
-            Value::Buffer(_) => "Buffer",
-            Value::Function(_) => "Function",
-            Value::NativeFn(_) => "NativeFn",
-            Value::Unknown(_) => "Unknown",
-        }
-    }
-
-    pub fn get_inner_type(&self) -> i64 {
-        match self {
-            Value::None => 0,
-            Value::Bool(_) => 1,
-            Value::Integer(_) => 2,
-            Value::Real(_) => 3,
-            Value::Tuple(_) => 4,
-            Value::TupleWeak(_) => 5,
-            Value::Table(_) => 6,
-            Value::List(_) => 7,
-            Value::Buffer(_) => 8,
-            Value::Function(_) => 9,
-            Value::NativeFn(_) => 10,
-            Value::Unknown(_) => 11,
-        }
-    }
+create_value_enum! {
+    Bool, Integer, Real, Tuple, TupleWeak, Table, List, Buffer, Function, NativeFn, Unknown
 }
 
 pub struct ValueTryIntoError {
@@ -97,46 +117,3 @@ impl<T: Into<Value>> From<Option<T>> for Value {
         }
     }
 }
-
-macro_rules! enum_impl_conversion {
-    ($t:ident) => {
-        impl From< $t > for Value {
-            fn from(t: $t ) -> Self {
-                Value:: $t (t)
-            }
-        }
-
-        impl TryInto< $t > for Value {
-            type Error = ValueTryIntoError;
-            fn try_into(self) -> Result<$t, Self::Error> {
-                match self {
-                    Value :: $t (t) => Ok(t),
-                    _ => Err(ValueTryIntoError {
-                        found: self.get_inner_type_name(),
-                        expected: stringify!($t),
-                    }),
-                }
-            }
-        }
-
-        impl<'a> TryInto< &'a $t > for &'a Value {
-            type Error = ValueTryIntoError;
-            fn try_into(self) -> Result<&'a $t, Self::Error> {
-                match self {
-                    Value :: $t (t) => Ok(t),
-                    _ => Err(ValueTryIntoError {
-                        found: self.get_inner_type_name(),
-                        expected: stringify!($t),
-                    }),
-                }
-            }
-        }
-    };
-    ($($t:ident),+) => {
-        $( enum_impl_conversion!($t); )+
-    }
-}
-
-enum_impl_conversion!(
-    Bool, Integer, Real, Tuple, TupleWeak, Table, List, Buffer, Function, NativeFn, Unknown
-);
