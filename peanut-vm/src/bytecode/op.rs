@@ -110,7 +110,7 @@ create_op_type!(
     // int
     Shl, Shr, And, Or, Xor, Not,
     // cmp and real
-    Cmp, Floor, Ceil, Trunc, Round,
+    Cmp, SameType, Floor, Ceil, Trunc, Round,
     // call and jump
     Call, Return, Jump, JumpZero, JumpNeg,
     // literal

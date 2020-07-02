@@ -24,7 +24,7 @@ use stackargs::StackArgs;
 
 pub use buffer::{BufferCreate, BufferGetSlice, BufferSetSlice};
 pub use call::{Call, Return};
-pub use cmp::Cmp;
+pub use cmp::{Cmp, SameType};
 pub use int::{And, Not, Or, Shl, Shr, Xor};
 pub use jump::{Jump, JumpNeg, JumpZero};
 pub use list::{ListCreate, ListGetSlice, ListPop, ListPush};

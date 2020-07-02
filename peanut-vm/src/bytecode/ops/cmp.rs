@@ -60,3 +60,16 @@ fn cmp_tuple(lhs: usize, rhs: &Value) -> Result<Ordering, ValueTryIntoError> {
         }
     })
 }
+
+new_bin_op!(SameType);
+impl Operation for SameType {
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
+        let lhs: &Value = m.load(self.lhs)?;
+        let rhs: &Value = m.load(self.rhs)?;
+        if lhs.get_type() == rhs.get_type() {
+            Ok(1.into())
+        } else {
+            Ok(0.into())
+        }
+    }
+}
