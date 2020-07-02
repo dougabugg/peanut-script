@@ -3,7 +3,7 @@ use std::cmp::Ordering;
 use std::convert::TryInto;
 use std::rc::Rc;
 
-use super::{Buffer, Function, List, Record, Table, Tuple, WeakRecord};
+use super::{Buffer, Function, List, Table, Tuple, TupleWeak};
 
 pub type Bool = bool;
 pub type Integer = i64;
@@ -19,8 +19,7 @@ pub enum Value {
     Integer(Integer),
     Real(Real),
     Tuple(Tuple),
-    Record(Record),
-    WeakRecord(WeakRecord),
+    TupleWeak(TupleWeak),
     Table(Table),
     List(List),
     Buffer(Buffer),
@@ -37,8 +36,7 @@ impl Value {
             Value::Integer(_) => "Integer",
             Value::Real(_) => "Real",
             Value::Tuple(_) => "Tuple",
-            Value::Record(_) => "Record",
-            Value::WeakRecord(_) => "WeakRecord",
+            Value::TupleWeak(_) => "TupleWeak",
             Value::Table(_) => "Table",
             Value::List(_) => "List",
             Value::Buffer(_) => "Buffer",
@@ -55,14 +53,13 @@ impl Value {
             Value::Integer(_) => 2,
             Value::Real(_) => 3,
             Value::Tuple(_) => 4,
-            Value::Record(_) => 5,
-            Value::WeakRecord(_) => 6,
-            Value::Table(_) => 7,
-            Value::List(_) => 8,
-            Value::Buffer(_) => 9,
-            Value::Function(_) => 10,
-            Value::NativeFn(_) => 11,
-            Value::Unknown(_) => 12,
+            Value::TupleWeak(_) => 5,
+            Value::Table(_) => 6,
+            Value::List(_) => 7,
+            Value::Buffer(_) => 8,
+            Value::Function(_) => 9,
+            Value::NativeFn(_) => 10,
+            Value::Unknown(_) => 11,
         }
     }
 }
@@ -141,6 +138,5 @@ macro_rules! enum_impl_conversion {
 }
 
 enum_impl_conversion!(
-    Bool, Integer, Real, Tuple, Record, WeakRecord, Table, List, Buffer, Function, NativeFn,
-    Unknown
+    Bool, Integer, Real, Tuple, TupleWeak, Table, List, Buffer, Function, NativeFn, Unknown
 );

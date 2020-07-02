@@ -116,9 +116,7 @@ create_op_type!(
     // literal
     LocalCopy, LiteralCreate,
     // tuple
-    TupleCreate, TupleFromList,
-    // record
-    RecordCreate, RecordFromList, RecordWeakRef, WeakRecordUpgrade,
+    TupleCreate, TupleFromList, TupleWeakRef, TupleWeakUpgrade,
     // table
     TableCreate, TableGet, TableSet,
     // list

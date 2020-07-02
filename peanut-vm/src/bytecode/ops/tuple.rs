@@ -1,6 +1,7 @@
+use std::cell::RefCell;
 use std::convert::TryInto;
 
-use crate::datamodel::{List, Tuple};
+use crate::datamodel::{List, Tuple, TupleWeak, Value};
 
 use super::{CallStack, DataIO, OpAction, OpError, Operation, StackArgs};
 
@@ -27,7 +28,7 @@ impl Operation for TupleCreate {
         let mut acc = Vec::new();
         for i in &self.items {
             let item = m.load(*i)?;
-            acc.push(item.clone());
+            acc.push(RefCell::new(item.clone()));
         }
         m.store(self.out, Tuple::new(acc).into())?;
         Ok(OpAction::None)
@@ -37,9 +38,31 @@ impl Operation for TupleCreate {
 new_unary_op!(TupleFromList);
 impl Operation for TupleFromList {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let list: &List = m.load(self.val)?.try_into()?;
-        let record = Tuple::new(list.as_slice().iter().map(|v| v.clone()).collect());
-        m.store(self.out, record.into())?;
+        let val: &Value = m.load(self.val)?;
+        let list: &List = val.try_into()?;
+        let tuple = Tuple::from_iter(list.as_slice().iter().map(|v| v.clone()));
+        m.store(self.out, tuple.into())?;
+        Ok(OpAction::None)
+    }
+}
+
+new_unary_op!(TupleWeakRef);
+impl Operation for TupleWeakRef {
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
+        let val: &Value = m.load(self.val)?;
+        let tuple: &Tuple = val.try_into()?;
+        let weak = tuple.downgrade();
+        m.store(self.out, weak.into())?;
+        Ok(OpAction::None)
+    }
+}
+
+new_unary_op!(TupleWeakUpgrade);
+impl Operation for TupleWeakUpgrade {
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
+        let weak: &TupleWeak = m.load(self.val)?.try_into()?;
+        let tuple = weak.upgrade();
+        m.store(self.out, tuple.into())?;
         Ok(OpAction::None)
     }
 }

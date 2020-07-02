@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use std::convert::TryInto;
 
 use crate::datamodel::{
-    Buffer, Function, Identity, List, NativeFn, Table, Tuple, Unknown, Value, ValueTryIntoError,
+    Buffer, Function, Identity, List, NativeFn, Table, Unknown, Value, ValueTryIntoError,
 };
 
 use super::{CallStack, DataIO, OpAction, OpError, Operation};
@@ -20,12 +20,8 @@ impl Operation for Cmp {
             Value::Bool(lhs) => lhs.cmp(rhs.try_into()?).into(),
             Value::Integer(lhs) => lhs.cmp(rhs.try_into()?).into(),
             Value::Real(lhs) => lhs.partial_cmp(rhs.try_into()?).into(),
-            Value::Tuple(lhs) => lhs
-                .identity()
-                .cmp(&TryInto::<&Tuple>::try_into(rhs)?.identity())
-                .into(),
-            Value::Record(lhs) => cmp_record(lhs.identity(), rhs)?.into(),
-            Value::WeakRecord(lhs) => cmp_record(lhs.identity(), rhs)?.into(),
+            Value::Tuple(lhs) => cmp_tuple(lhs.identity(), rhs)?.into(),
+            Value::TupleWeak(lhs) => cmp_tuple(lhs.identity(), rhs)?.into(),
             Value::Table(lhs) => lhs
                 .identity()
                 .cmp(&TryInto::<&Table>::try_into(rhs)?.identity())
@@ -53,14 +49,14 @@ impl Operation for Cmp {
     }
 }
 
-fn cmp_record(lhs: usize, rhs: &Value) -> Result<Ordering, ValueTryIntoError> {
+fn cmp_tuple(lhs: usize, rhs: &Value) -> Result<Ordering, ValueTryIntoError> {
     Ok(match rhs {
-        Value::Record(rhs) => lhs.cmp(&rhs.identity()),
-        Value::WeakRecord(rhs) => lhs.cmp(&rhs.identity()),
+        Value::Tuple(rhs) => lhs.cmp(&rhs.identity()),
+        Value::TupleWeak(rhs) => lhs.cmp(&rhs.identity()),
         _ => {
             let e = ValueTryIntoError {
                 found: rhs.get_inner_type_name(),
-                expected: "Record",
+                expected: "Tuple",
             };
             return Err(e);
         }

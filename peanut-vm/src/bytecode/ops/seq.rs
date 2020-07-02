@@ -10,7 +10,6 @@ impl Operation for SeqLen {
         let seq = m.load(self.val)?;
         let len = match seq {
             Value::Tuple(t) => t.len(),
-            Value::Record(t) => t.len(),
             // Value::Table(t) => t.len(),
             Value::List(t) => t.len(),
             Value::Buffer(t) => t.len(),
@@ -42,7 +41,6 @@ impl Operation for SeqGet {
         let index = *TryInto::<&i64>::try_into(m.load(self.rhs)?)? as usize;
         let val = match seq {
             Value::Tuple(t) => t.get(index),
-            Value::Record(t) => t.get(index),
             // Value::Table(t) => t.get(index),
             Value::List(t) => t.get(index),
             Value::Buffer(t) => t.get(index),
@@ -61,7 +59,6 @@ impl Operation for SeqQuickGet {
         let index = self.rhs as usize;
         let val = match seq {
             Value::Tuple(t) => t.get(index),
-            Value::Record(t) => t.get(index),
             // Value::Table(t) => t.get(index),
             Value::List(t) => t.get(index),
             Value::Buffer(t) => t.get(index),
@@ -127,8 +124,7 @@ impl Operation for SeqQuickSet {
 
 fn seq_to_vec(seq: &Value) -> Result<Vec<Value>, OpError> {
     Ok(match seq {
-        Value::Tuple(t) => t.as_slice().to_vec(),
-        Value::Record(t) => t.iter().collect(),
+        Value::Tuple(t) => t.iter().collect(),
         Value::Table(t) => t.to_vec(),
         Value::List(t) => t.as_slice().to_vec(),
         Value::Buffer(t) => t.as_slice().iter().map(|b| (*b as i64).into()).collect(),

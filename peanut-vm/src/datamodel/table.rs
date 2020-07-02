@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use super::{Identity, Record, Value};
+use super::{Identity, Tuple, Value};
 
 #[derive(Clone)]
 pub struct Table {
@@ -25,7 +25,7 @@ impl Table {
         self.items
             .iter()
             .map(|(key, val)| {
-                Record::new(vec![
+                Tuple::new(vec![
                     RefCell::new((*key as i64).into()),
                     RefCell::new(val.borrow().clone()),
                 ])

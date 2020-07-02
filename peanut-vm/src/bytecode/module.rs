@@ -1,16 +1,16 @@
 use super::ops::LiteralValue;
 use super::{BytesIO, BytesReadError, Function};
 
-use crate::datamodel::{Buffer, Function as FuncVal, Record, Value};
+use crate::datamodel::{Buffer, Function as FuncVal, Tuple, Value};
 
 pub struct Module {
     items: Vec<ModuleItem>,
 }
 
 impl Module {
-    pub fn into_record(self) -> (Record, Vec<(usize, usize)>) {
+    pub fn into_tuple(self) -> (Tuple, Vec<(usize, usize)>) {
         let len = self.items.len();
-        let record = Record::empty(len);
+        let tuple = Tuple::empty(len);
         let mut refs = Vec::new();
         for (i, item) in self.items.into_iter().enumerate() {
             let val = match item {
@@ -20,11 +20,11 @@ impl Module {
                     refs.push((i, r as usize));
                     Value::None
                 }
-                ModuleItem::Function(f) => FuncVal::new(f.stack_size, record.clone(), f.ops).into(),
+                ModuleItem::Function(f) => FuncVal::new(f.stack_size, tuple.clone(), f.ops).into(),
             };
-            record.set(i, val);
+            tuple.set(i, val);
         }
-        (record, refs)
+        (tuple, refs)
     }
 }
 
@@ -101,6 +101,6 @@ which use dynamic dispatch and Tables? it does have the potential to, but rather
 than hardcoding the ID of each interface/trait, we could have programs fetch the
 ID from the library after it is loaded.
 
-how do want to handle dynamic loading? well, modules are just Records, so we don't
+how do want to handle dynamic loading? well, modules are just Tuples, so we don't
 need to implement that here, it will be handled at runtime, not at load time.
 */

@@ -36,6 +36,7 @@ impl CallFrame {
             Some(op) => op.clone(),
             None => return Ok(OpAction::Return(Value::None)),
         };
+        self.cursor += 1;
         op.exec(&mut self.stack)
     }
 }

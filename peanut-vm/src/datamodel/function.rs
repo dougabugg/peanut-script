@@ -2,17 +2,17 @@ use std::rc::Rc;
 
 use crate::bytecode::Op;
 
-use super::{Identity, Record};
+use super::{Identity, Tuple};
 
 #[derive(Clone)]
 pub struct Function {
     pub stack_size: u8,
-    pub module: Record,
+    pub module: Tuple,
     pub ops: Rc<Vec<Op>>,
 }
 
 impl Function {
-    pub fn new(stack_size: u8, module: Record, ops: Vec<Op>) -> Function {
+    pub fn new(stack_size: u8, module: Tuple, ops: Vec<Op>) -> Function {
         Function {
             stack_size,
             module,

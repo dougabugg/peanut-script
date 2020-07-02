@@ -1,27 +1,27 @@
 use super::{BytesIO, BytesReadError, Module};
 
-use crate::datamodel::{Record, Value};
+use crate::datamodel::{Tuple, Value};
 
 pub struct Program {
     modules: Vec<Module>,
 }
 
 impl Program {
-    pub fn into_record(self) -> Record {
+    pub fn into_tuple(self) -> Tuple {
         let len = self.modules.len();
-        let record = Record::empty(len);
+        let tuple = Tuple::empty(len);
         let mut refs = Vec::new();
         for (i, module) in self.modules.into_iter().enumerate() {
-            let (module, mrefs) = module.into_record();
+            let (module, mrefs) = module.into_tuple();
             refs.push((module.clone(), mrefs));
-            record.set(i, module.into());
+            tuple.set(i, module.into());
         }
         for (module, mrefs) in refs {
             for (l, r) in mrefs {
-                module.set(l, record.get(r).unwrap_or(Value::None));
+                module.set(l, tuple.get(r).unwrap_or(Value::None));
             }
         }
-        record
+        tuple
     }
 }
 
