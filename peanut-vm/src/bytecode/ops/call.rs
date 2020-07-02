@@ -33,7 +33,7 @@ impl Operation for Call {
         match target {
             Value::Function(t) => Ok(OpAction::Call(t.clone(), args, self.output)),
             Value::NativeFn(t) => Ok(OpAction::CallNative(*t, args, self.output)),
-            _ => Err(OpError::BadType(target.get_inner_type_name())),
+            _ => Err(OpError::BadType(target.get_type())),
         }
     }
 }

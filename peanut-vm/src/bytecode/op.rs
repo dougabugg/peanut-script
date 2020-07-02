@@ -2,7 +2,7 @@ use super::{BytesIO, BytesReadError};
 
 use crate::CallStack;
 
-use crate::datamodel::{Function, NativeFn, Value, ValueTryIntoError};
+use crate::datamodel::{Function, NativeFn, Value, ValueTryIntoError, ValueType};
 
 use super::ops::*;
 
@@ -24,7 +24,7 @@ pub enum OpError {
     IndexRead(i64),
     IndexWrite(i64),
     IntoType(ValueTryIntoError),
-    BadType(&'static str),
+    BadType(ValueType),
 }
 
 impl From<ValueTryIntoError> for OpError {

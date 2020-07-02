@@ -1,10 +1,8 @@
 use std::convert::TryInto;
 
-use crate::datamodel::{Integer, Real, Value, ValueTryIntoError};
+use crate::datamodel::{Integer, Real, Value};
 
 use super::{CallStack, DataIO, OpAction, OpError, Operation};
-
-pub const NUM_TYPE_NAME: &'static str = "Integer or Real";
 
 macro_rules! impl_math_op {
     ($name:ident, $e:expr) => {
@@ -22,13 +20,7 @@ macro_rules! impl_math_op {
                         let rhs = *TryInto::<&Real>::try_into(rhs)?;
                         $e(lhs, rhs).into()
                     }
-                    _ => {
-                        let e = ValueTryIntoError {
-                            found: lhs.get_inner_type_name(),
-                            expected: NUM_TYPE_NAME,
-                        };
-                        return Err(OpError::IntoType(e));
-                    }
+                    _ => return Err(OpError::BadType(lhs.get_type())),
                 };
                 m.store(self.out, result)?;
                 Ok(OpAction::None)
@@ -50,13 +42,7 @@ impl Operation for Neg {
         let val: Value = match val {
             Value::Integer(val) => (-val).into(),
             Value::Real(val) => (-val).into(),
-            _ => {
-                let e = ValueTryIntoError {
-                    found: val.get_inner_type_name(),
-                    expected: NUM_TYPE_NAME,
-                };
-                return Err(OpError::IntoType(e));
-            }
+            _ => return Err(OpError::BadType(val.get_type())),
         };
         m.store(self.out, val)?;
         Ok(OpAction::None)

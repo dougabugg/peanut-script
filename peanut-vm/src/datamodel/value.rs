@@ -19,6 +19,15 @@ macro_rules! create_value_enum {
             $($n($n)),+
         }
 
+        impl Value {
+            pub fn get_type(&self) -> ValueType {
+                match self {
+                    Value::None => ValueType::None,
+                    $(Value::$n(_) => ValueType::$n),+
+                }
+            }
+        }
+
         #[repr(u8)]
         #[derive(PartialEq)]
         pub enum ValueType {
@@ -26,18 +35,11 @@ macro_rules! create_value_enum {
             $($n),+
         }
 
-        impl Value {
-            pub fn get_inner_type_name(&self) -> &'static str {
+        impl ValueType {
+            pub fn as_str(&self) -> &'static str {
                 match self {
-                    Value::None => "None",
-                    $(Value::$n(_) => stringify!($n)),+
-                }
-            }
-
-            pub fn get_inner_type(&self) -> ValueType {
-                match self {
-                    Value::None => ValueType::None,
-                    $(Value::$n(_) => ValueType::$n),+
+                    ValueType::None => "None",
+                    $(ValueType::$n => stringify!($n)),+
                 }
             }
         }
@@ -57,8 +59,8 @@ macro_rules! create_value_enum {
                 match self {
                     Value :: $t (t) => Ok(t),
                     _ => Err(ValueTryIntoError {
-                        found: self.get_inner_type_name(),
-                        expected: stringify!($t),
+                        found: self.get_type(),
+                        expected: ValueType::$t,
                     }),
                 }
             }
@@ -70,8 +72,8 @@ macro_rules! create_value_enum {
                 match self {
                     Value :: $t (t) => Ok(t),
                     _ => Err(ValueTryIntoError {
-                        found: self.get_inner_type_name(),
-                        expected: stringify!($t),
+                        found: self.get_type(),
+                        expected: ValueType::$t,
                     }),
                 }
             }
@@ -84,8 +86,8 @@ create_value_enum! {
 }
 
 pub struct ValueTryIntoError {
-    pub found: &'static str,
-    pub expected: &'static str,
+    pub found: ValueType,
+    pub expected: ValueType,
 }
 
 pub trait Identity {

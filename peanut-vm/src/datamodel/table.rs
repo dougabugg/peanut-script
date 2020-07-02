@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::mem;
 use std::rc::Rc;
 
-use super::{Identity, Tuple, Value};
+use super::{Identity, Tuple, Value, ValueType};
 
 #[derive(Clone)]
 pub struct Table {
@@ -42,7 +42,7 @@ impl Table {
         let mut items = self.items.borrow_mut();
         match items.binary_search_by_key(&key, |(k, _)| *k) {
             Ok(index) => {
-                if value.get_inner_type() == Value::None.get_inner_type() {
+                if value.get_type() == ValueType::None {
                     Some(items.remove(index).1)
                 } else {
                     let item = &mut unsafe { items.get_unchecked_mut(index) }.1;
@@ -51,7 +51,7 @@ impl Table {
                 }
             }
             Err(index) => {
-                if value.get_inner_type() != Value::None.get_inner_type() {
+                if value.get_type() != ValueType::None {
                     items.insert(index, (key, value));
                 }
                 None

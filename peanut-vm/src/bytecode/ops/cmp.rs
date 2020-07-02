@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use std::convert::TryInto;
 
 use crate::datamodel::{
-    Buffer, Function, Identity, List, NativeFn, Table, Unknown, Value, ValueTryIntoError,
+    Buffer, Function, Identity, List, NativeFn, Table, Unknown, Value, ValueTryIntoError, ValueType,
 };
 
 use super::{CallStack, DataIO, OpAction, OpError, Operation};
@@ -53,11 +53,10 @@ fn cmp_tuple(lhs: usize, rhs: &Value) -> Result<Ordering, ValueTryIntoError> {
         Value::Tuple(rhs) => lhs.cmp(&rhs.identity()),
         Value::TupleWeak(rhs) => lhs.cmp(&rhs.identity()),
         _ => {
-            let e = ValueTryIntoError {
-                found: rhs.get_inner_type_name(),
-                expected: "Tuple",
-            };
-            return Err(e);
+            return Err(ValueTryIntoError {
+                found: rhs.get_type(),
+                expected: ValueType::Tuple,
+            })
         }
     })
 }

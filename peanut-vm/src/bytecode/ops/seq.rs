@@ -13,7 +13,7 @@ impl Operation for SeqLen {
             // Value::Table(t) => t.len(),
             Value::List(t) => t.len(),
             Value::Buffer(t) => t.len(),
-            _ => return Err(OpError::BadType(seq.get_inner_type_name())),
+            _ => return Err(OpError::BadType(seq.get_type())),
         };
         m.store(self.out, (len as i64).into())?;
         Ok(OpAction::None)
@@ -28,7 +28,7 @@ impl Operation for SeqResize {
         match seq {
             Value::List(t) => t.resize(len),
             Value::Buffer(t) => t.resize(len),
-            _ => return Err(OpError::BadType(seq.get_inner_type_name())),
+            _ => return Err(OpError::BadType(seq.get_type())),
         }
         Ok(OpAction::None)
     }
@@ -40,7 +40,7 @@ fn seq_get(seq: &Value, index: i64) -> Result<Value, OpError> {
         Value::Table(t) => Ok(t.get(index as u64).unwrap_or(Value::None)),
         Value::List(t) => t.get(index as usize).ok_or(OpError::IndexRead(index)),
         Value::Buffer(t) => t.get(index as usize).ok_or(OpError::IndexRead(index)),
-        _ => return Err(OpError::BadType(seq.get_inner_type_name())),
+        _ => return Err(OpError::BadType(seq.get_type())),
     }
 }
 
@@ -78,7 +78,7 @@ fn seq_set(seq: &Value, index: i64, val: &Value) -> Result<Value, OpError> {
         Value::Buffer(t) => t
             .set(index as usize, *TryInto::<&i64>::try_into(val)? as u8)
             .ok_or(OpError::IndexWrite(index)),
-        _ => return Err(OpError::BadType(seq.get_inner_type_name())),
+        _ => return Err(OpError::BadType(seq.get_type())),
     }
 }
 
@@ -124,7 +124,7 @@ fn seq_to_vec(seq: &Value) -> Result<Vec<Value>, OpError> {
         Value::Table(t) => t.to_vec(),
         Value::List(t) => t.as_slice().to_vec(),
         Value::Buffer(t) => t.as_slice().iter().map(|b| (*b as i64).into()).collect(),
-        _ => return Err(OpError::BadType(seq.get_inner_type_name())),
+        _ => return Err(OpError::BadType(seq.get_type())),
     })
 }
 
@@ -169,7 +169,7 @@ impl Operation for SeqAppend {
                     buffer.append(&acc);
                 }
             },
-            _ => return Err(OpError::BadType(seq.get_inner_type_name())),
+            _ => return Err(OpError::BadType(seq.get_type())),
         }
         Ok(OpAction::None)
     }
