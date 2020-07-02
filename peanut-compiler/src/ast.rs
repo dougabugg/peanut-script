@@ -74,7 +74,7 @@ pub enum Statement {
     Expr(Expr),
     DeclareLocal(usize),
     Return(Expr),
-    If(If),
+    IfElse(IfElse),
     Loop {
         label: Option<usize>,
         body: Vec<Statement>,
@@ -87,10 +87,15 @@ pub enum Statement {
     },
 }
 
+pub struct IfElse {
+    if_: If,
+    else_if: Vec<If>,
+    else_: Vec<Statement>,
+}
+
 pub struct If {
     condition: Expr,
     body: Vec<Statement>,
-    else_: Option<Box<If>>,
 }
 
 pub struct Function {
