@@ -23,24 +23,24 @@ impl Operation for Cmp {
             Value::TupleWeak(lhs) => cmp_tuple(lhs.identity(), rhs)?.into(),
             Value::Table(lhs) => lhs
                 .identity()
-                .cmp(&TryInto::<&Table>::try_into(rhs)?.identity())
+                .eq(&TryInto::<&Table>::try_into(rhs)?.identity())
                 .into(),
             Value::List(lhs) => lhs
                 .identity()
-                .cmp(&TryInto::<&List>::try_into(rhs)?.identity())
+                .eq(&TryInto::<&List>::try_into(rhs)?.identity())
                 .into(),
             Value::Buffer(lhs) => lhs
                 .identity()
-                .cmp(&TryInto::<&Buffer>::try_into(rhs)?.identity())
+                .eq(&TryInto::<&Buffer>::try_into(rhs)?.identity())
                 .into(),
             Value::Function(lhs) => lhs
                 .identity()
-                .cmp(&TryInto::<&Function>::try_into(rhs)?.identity())
+                .eq(&TryInto::<&Function>::try_into(rhs)?.identity())
                 .into(),
-            Value::NativeFn(lhs) => lhs.cmp(TryInto::<&NativeFn>::try_into(rhs)?).into(),
+            Value::NativeFn(lhs) => lhs.eq(TryInto::<&NativeFn>::try_into(rhs)?).into(),
             Value::Unknown(lhs) => lhs
                 .identity()
-                .cmp(&TryInto::<&Unknown>::try_into(rhs)?.identity())
+                .eq(&TryInto::<&Unknown>::try_into(rhs)?.identity())
                 .into(),
         };
         m.store(self.out, result)?;
@@ -48,10 +48,10 @@ impl Operation for Cmp {
     }
 }
 
-fn cmp_tuple(lhs: usize, rhs: &Value) -> Result<Ordering, ValueTryIntoError> {
+fn cmp_tuple(lhs: usize, rhs: &Value) -> Result<bool, ValueTryIntoError> {
     Ok(match rhs {
-        Value::Tuple(rhs) => lhs.cmp(&rhs.identity()),
-        Value::TupleWeak(rhs) => lhs.cmp(&rhs.identity()),
+        Value::Tuple(rhs) => lhs.eq(&rhs.identity()),
+        Value::TupleWeak(rhs) => lhs.eq(&rhs.identity()),
         _ => {
             return Err(ValueTryIntoError {
                 found: rhs.get_type(),
@@ -66,10 +66,8 @@ impl Operation for SameType {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
         let lhs: &Value = m.load(self.lhs)?;
         let rhs: &Value = m.load(self.rhs)?;
-        if lhs.get_type() == rhs.get_type() {
-            Ok(1.into())
-        } else {
-            Ok(0.into())
-        }
+        let same = lhs.get_type() == rhs.get_type();
+        m.store(self.out, same.into())?;
+        Ok(OpAction::None)
     }
 }

@@ -100,6 +100,15 @@ impl Identity for Unknown {
     }
 }
 
+impl From<bool> for Value {
+    fn from(t: bool) -> Self {
+        match t {
+            true => 1.into(),
+            false => 0.into(),
+        }
+    }
+}
+
 impl From<Ordering> for Value {
     fn from(t: Ordering) -> Self {
         Value::Integer(match t {
