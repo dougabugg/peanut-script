@@ -10,6 +10,4 @@ pub use function::Function;
 pub use list::List;
 pub use table::Table;
 pub use tuple::{Tuple, TupleWeak};
-pub use value::{
-    Bool, Identity, Integer, NativeFn, Real, Unknown, Value, ValueTryIntoError, ValueType,
-};
+pub use value::{Identity, Integer, NativeFn, Real, Unknown, Value, ValueTryIntoError, ValueType};

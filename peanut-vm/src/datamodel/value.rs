@@ -5,7 +5,6 @@ use std::rc::Rc;
 
 use super::{Buffer, Function, List, Table, Tuple, TupleWeak};
 
-pub type Bool = bool;
 pub type Integer = i64;
 pub type Real = f64;
 pub type Unknown = Rc<dyn Any>;
@@ -81,7 +80,7 @@ macro_rules! create_value_enum {
 }
 
 create_value_enum! {
-    Bool, Integer, Real, Tuple, TupleWeak, Table, List, Buffer, Function, NativeFn, Unknown
+    Integer, Real, Tuple, TupleWeak, Table, List, Buffer, Function, NativeFn, Unknown
 }
 
 pub struct ValueTryIntoError {

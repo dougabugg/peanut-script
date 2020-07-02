@@ -17,7 +17,6 @@ impl Operation for Cmp {
                 Value::None => Ordering::Equal.into(),
                 _ => Ordering::Less.into(),
             },
-            Value::Bool(lhs) => lhs.cmp(rhs.try_into()?).into(),
             Value::Integer(lhs) => lhs.cmp(rhs.try_into()?).into(),
             Value::Real(lhs) => lhs.partial_cmp(rhs.try_into()?).into(),
             Value::Tuple(lhs) => cmp_tuple(lhs.identity(), rhs)?.into(),

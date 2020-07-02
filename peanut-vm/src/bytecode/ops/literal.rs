@@ -14,7 +14,6 @@ impl Operation for LocalCopy {
 #[derive(Clone, Copy)]
 pub enum LiteralValue {
     None,
-    Bool(bool),
     Integer(i64),
     Real(f64),
 }
@@ -23,7 +22,6 @@ impl LiteralValue {
     pub fn into_val(&self) -> Value {
         match self {
             LiteralValue::None => Value::None,
-            LiteralValue::Bool(b) => Value::Bool(*b),
             LiteralValue::Integer(i) => Value::Integer(*i),
             LiteralValue::Real(r) => Value::Real(*r),
         }
@@ -36,14 +34,10 @@ impl BytesIO for LiteralValue {
         match n {
             0 => Ok((b2, LiteralValue::None)),
             1 => {
-                let (b, bl) = <u8 as BytesIO>::read(b2)?;
-                Ok((b, LiteralValue::Bool(bl != 0)))
-            }
-            2 => {
                 let (b, int) = <i64 as BytesIO>::read(b2)?;
                 Ok((b, LiteralValue::Integer(int)))
             }
-            3 => {
+            2 => {
                 let (b, real) = <f64 as BytesIO>::read(b2)?;
                 Ok((b, LiteralValue::Real(real)))
             }
@@ -53,9 +47,8 @@ impl BytesIO for LiteralValue {
     fn write<'a>(t: &Self, b: &'a mut [u8]) -> Option<&'a mut [u8]> {
         match t {
             LiteralValue::None => Some(<u8 as BytesIO>::write(&0, b)?),
-            LiteralValue::Bool(bl) => Some(<(u8, u8) as BytesIO>::write(&(1, *bl as u8), b)?),
-            LiteralValue::Integer(int) => Some(<(u8, i64) as BytesIO>::write(&(2, *int), b)?),
-            LiteralValue::Real(real) => Some(<(u8, f64) as BytesIO>::write(&(3, *real), b)?),
+            LiteralValue::Integer(int) => Some(<(u8, i64) as BytesIO>::write(&(1, *int), b)?),
+            LiteralValue::Real(real) => Some(<(u8, f64) as BytesIO>::write(&(2, *real), b)?),
         }
     }
 }
@@ -71,7 +64,6 @@ impl Operation for LiteralCreate {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
         let val = match self.val {
             LiteralValue::None => Value::None,
-            LiteralValue::Bool(bl) => bl.into(),
             LiteralValue::Integer(int) => int.into(),
             LiteralValue::Real(real) => real.into(),
         };
