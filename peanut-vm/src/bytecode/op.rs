@@ -21,8 +21,8 @@ pub enum OpAction {
 pub enum OpError {
     StackRead(u8),
     StackWrite(u8),
-    IndexRead(usize),
-    IndexWrite(usize),
+    IndexRead(i64),
+    IndexWrite(i64),
     IntoType(ValueTryIntoError),
     BadType(&'static str),
 }
@@ -117,10 +117,8 @@ create_op_type!(
     LocalCopy, LiteralCreate,
     // tuple
     TupleCreate, TupleFromList, TupleWeakRef, TupleWeakUpgrade,
-    // table
-    TableCreate, TableGet, TableSet,
-    // list
-    ListCreate, ListPush, ListPop, ListGetSlice,
+    // table and list
+    TableCreate, ListCreate, ListPush, ListPop, ListGetSlice,
     // buffer
     BufferCreate, BufferGetSlice, BufferSetSlice,
     // seq

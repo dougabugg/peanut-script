@@ -34,20 +34,23 @@ impl Operation for SeqResize {
     }
 }
 
+fn seq_get(seq: &Value, index: i64) -> Result<Value, OpError> {
+    match seq {
+        Value::Tuple(t) => t.get(index as usize).ok_or(OpError::IndexRead(index)),
+        Value::Table(t) => Ok(t.get(index as u64).unwrap_or(Value::None)),
+        Value::List(t) => t.get(index as usize).ok_or(OpError::IndexRead(index)),
+        Value::Buffer(t) => t.get(index as usize).ok_or(OpError::IndexRead(index)),
+        _ => return Err(OpError::BadType(seq.get_inner_type_name())),
+    }
+}
+
 new_bin_op!(SeqGet);
 impl Operation for SeqGet {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
         let seq = m.load(self.lhs)?;
-        let index = *TryInto::<&i64>::try_into(m.load(self.rhs)?)? as usize;
-        let val = match seq {
-            Value::Tuple(t) => t.get(index),
-            // Value::Table(t) => t.get(index),
-            Value::List(t) => t.get(index),
-            Value::Buffer(t) => t.get(index),
-            _ => return Err(OpError::BadType(seq.get_inner_type_name())),
-        }
-        .ok_or(OpError::IndexRead(index))?;
-        m.store(self.out, val.clone())?;
+        let index = *TryInto::<&i64>::try_into(m.load(self.rhs)?)?;
+        let val = seq_get(seq, index)?;
+        m.store(self.out, val)?;
         Ok(OpAction::None)
     }
 }
@@ -56,17 +59,26 @@ new_bin_op!(SeqQuickGet);
 impl Operation for SeqQuickGet {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
         let seq = m.load(self.lhs)?;
-        let index = self.rhs as usize;
-        let val = match seq {
-            Value::Tuple(t) => t.get(index),
-            // Value::Table(t) => t.get(index),
-            Value::List(t) => t.get(index),
-            Value::Buffer(t) => t.get(index),
-            _ => return Err(OpError::BadType(seq.get_inner_type_name())),
-        }
-        .ok_or(OpError::IndexRead(index))?;
+        let index = self.rhs as i64;
+        let val = seq_get(seq, index)?;
         m.store(self.out, val.clone())?;
         Ok(OpAction::None)
+    }
+}
+
+fn seq_set(seq: &Value, index: i64, val: &Value) -> Result<Value, OpError> {
+    match seq {
+        Value::Tuple(t) => t
+            .set(index as usize, val.clone())
+            .ok_or(OpError::IndexWrite(index)),
+        Value::Table(t) => Ok(t.set(index as u64, val.clone()).unwrap_or(Value::None)),
+        Value::List(t) => t
+            .set(index as usize, val.clone())
+            .ok_or(OpError::IndexWrite(index)),
+        Value::Buffer(t) => t
+            .set(index as usize, *TryInto::<&i64>::try_into(val)? as u8)
+            .ok_or(OpError::IndexWrite(index)),
+        _ => return Err(OpError::BadType(seq.get_inner_type_name())),
     }
 }
 
@@ -81,17 +93,9 @@ new_op! {
 impl Operation for SeqSet {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
         let seq = m.load(self.seq)?;
-        let index = *TryInto::<&i64>::try_into(m.load(self.index)?)? as usize;
+        let index = *TryInto::<&i64>::try_into(m.load(self.index)?)?;
         let val = m.load(self.val)?;
-        match seq {
-            Value::List(t) => t
-                .set(index, val.clone())
-                .ok_or(OpError::IndexWrite(index))?,
-            Value::Buffer(t) => t
-                .set(index, *TryInto::<&i64>::try_into(val)? as u8)
-                .ok_or(OpError::IndexWrite(index))?,
-            _ => return Err(OpError::BadType(seq.get_inner_type_name())),
-        };
+        seq_set(seq, index, val)?;
         Ok(OpAction::None)
     }
 }
@@ -107,17 +111,9 @@ new_op! {
 impl Operation for SeqQuickSet {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
         let seq = m.load(self.seq)?;
-        let index = self.index as usize;
+        let index = self.index as i64;
         let val = m.load(self.val)?;
-        match seq {
-            Value::List(t) => t
-                .set(index, val.clone())
-                .ok_or(OpError::IndexWrite(index))?,
-            Value::Buffer(t) => t
-                .set(index, *TryInto::<&i64>::try_into(val)? as u8)
-                .ok_or(OpError::IndexWrite(index))?,
-            _ => return Err(OpError::BadType(seq.get_inner_type_name())),
-        };
+        seq_set(seq, index, val)?;
         Ok(OpAction::None)
     }
 }

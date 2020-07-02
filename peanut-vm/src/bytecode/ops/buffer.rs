@@ -28,8 +28,10 @@ impl Operation for BufferGetSlice {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
         let buffer: &Buffer = m.load(self.buffer)?.try_into()?;
         let a = *TryInto::<&i64>::try_into(m.load(self.a)?)? as usize;
-        let b = *TryInto::<&i64>::try_into(m.load(self.b)?)? as usize;
-        let slice = buffer.get_slice(a, b).ok_or(OpError::IndexRead(b))?;
+        let b = *TryInto::<&i64>::try_into(m.load(self.b)?)?;
+        let slice = buffer
+            .get_slice(a, b as usize)
+            .ok_or(OpError::IndexRead(b))?;
         m.store(self.out, slice.into())?;
         Ok(OpAction::None)
     }
@@ -51,9 +53,9 @@ impl Operation for BufferSetSlice {
         let src: &Buffer = m.load(self.src)?.try_into()?;
         let src_offset = *TryInto::<&i64>::try_into(m.load(self.src_offset)?)? as usize;
         let offset = *TryInto::<&i64>::try_into(m.load(self.offset)?)? as usize;
-        let len = *TryInto::<&i64>::try_into(m.load(self.len)?)? as usize;
+        let len = *TryInto::<&i64>::try_into(m.load(self.len)?)?;
         buffer
-            .set_slice(src, src_offset, offset, len)
+            .set_slice(src, src_offset, offset, len as usize)
             .ok_or(OpError::IndexWrite(len))?;
         Ok(OpAction::None)
     }

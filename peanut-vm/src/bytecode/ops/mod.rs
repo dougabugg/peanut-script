@@ -32,5 +32,5 @@ pub use literal::{LiteralCreate, LiteralValue, LocalCopy};
 pub use num::{Add, Div, Mul, Neg, Rem, Sub};
 pub use real::{Ceil, Floor, Round, Trunc};
 pub use seq::{SeqAppend, SeqGet, SeqLen, SeqQuickGet, SeqQuickSet, SeqResize, SeqSet, SeqToList};
-pub use table::{TableCreate, TableGet, TableSet};
+pub use table::TableCreate;
 pub use tuple::{TupleCreate, TupleFromList, TupleWeakRef, TupleWeakUpgrade};

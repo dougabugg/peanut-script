@@ -76,8 +76,8 @@ impl Operation for ListGetSlice {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
         let list: &List = m.load(self.list)?.try_into()?;
         let a = *TryInto::<&i64>::try_into(m.load(self.a)?)? as usize;
-        let b = *TryInto::<&i64>::try_into(m.load(self.b)?)? as usize;
-        let slice = list.get_slice(a, b).ok_or(OpError::IndexRead(b))?;
+        let b = *TryInto::<&i64>::try_into(m.load(self.b)?)?;
+        let slice = list.get_slice(a, b as usize).ok_or(OpError::IndexRead(b))?;
         m.store(self.out, slice.into())?;
         Ok(OpAction::None)
     }
