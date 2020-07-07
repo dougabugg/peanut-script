@@ -4,7 +4,7 @@ use super::{CallStack, DataIO, OpAction, OpError, Operation};
 
 new_op! {
     pub struct Jump {
-        dest: u32,
+        pub dest: u32,
     }
 }
 
@@ -17,7 +17,7 @@ impl Operation for Jump {
 new_op! {
     pub struct JumpZero {
         val: u8,
-        dest: u32,
+        pub dest: u32,
     }
 }
 
@@ -41,7 +41,7 @@ impl Operation for JumpZero {
 new_op! {
     pub struct JumpNeg {
         val: u8,
-        dest: u32,
+        pub dest: u32,
     }
 }
 

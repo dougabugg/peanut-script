@@ -18,6 +18,12 @@ pub enum LiteralValue {
     Real(f64),
 }
 
+impl From<i64> for LiteralValue {
+    fn from(t: i64) -> LiteralValue {
+        LiteralValue::Integer(t)
+    }
+}
+
 impl LiteralValue {
     pub fn into_val(&self) -> Value {
         match self {
