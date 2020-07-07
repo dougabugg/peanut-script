@@ -1,6 +1,5 @@
 pub enum Literal {
     None,
-    Bool(bool),
     Integer(i64),
     Real(f64),
     String(usize),
@@ -63,16 +62,17 @@ pub enum Expr {
 pub enum BinaryOp {
     Add, Sub, Mul, Div, Rem, Shl, Shr, And, Or, Xor,
     Equal, NotEqual, Greater, GreaterOrEqual, Less, LessOrEqual,
-    Identity
+    Identity, SameType, LogicAnd, LogicOr
 }
 
 pub enum UnaryOp {
-    Neg, Not, Floor, Ceil, Trunc, Round
+    Neg, Not, Floor, Ceil, Trunc, Round, LogicNot
 }
 
 pub enum Statement {
     Expr(Expr),
     DeclareLocal(usize),
+    DropLocal(usize),
     Return(Expr),
     IfElse(IfElse),
     Loop {
