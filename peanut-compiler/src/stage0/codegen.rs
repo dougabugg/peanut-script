@@ -1,3 +1,5 @@
+use super::Op;
+
 struct Label {
     target: Option<usize>,
     pub jumps: Vec<usize>,
@@ -36,6 +38,10 @@ impl CodeGenerator {
         }
     }
 
+    pub fn append(&mut self, mut ops: Vec<Op>) {
+        self.ops.append(&mut ops);
+    }
+
     pub fn here(&self) -> usize {
         self.ops.len()
     }
@@ -46,7 +52,7 @@ impl CodeGenerator {
 
     pub fn create_label(&mut self) -> usize {
         let i = self.labels.len();
-        self.labels.push(Label::new())
+        self.labels.push(Label::new());
         i
     }
 
@@ -69,11 +75,13 @@ impl CodeGenerator {
         self.ops.push(jump);
     }
 
-    pub fn into_ops(self) -> Vec<Op> {
-        for label in &self.labels {
-            let target = label.get_target();
-            for jump in &label.jumps {
-                match &mut self.ops[jump] {
+    pub fn into_vec(self) -> Vec<Op> {
+        let mut ops = self.ops;
+        for label in self.labels {
+            let target = label.get_target() as i32;
+            for jump in label.jumps {
+                let target = target - jump as i32;
+                match &mut ops[jump] {
                     Op::Jump(j) => j.dest = target,
                     Op::JumpZero(j) => j.dest = target,
                     Op::JumpNeg(j) => j.dest = target,
@@ -81,6 +89,6 @@ impl CodeGenerator {
                 }
             }
         }
-        self.ops
+        ops
     }
 }
