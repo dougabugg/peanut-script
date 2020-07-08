@@ -1,2 +1,2 @@
 [workspace]
-members = ["peanut-compiler", "peanut-vm"]
+members = ["compiler", "vm"]
