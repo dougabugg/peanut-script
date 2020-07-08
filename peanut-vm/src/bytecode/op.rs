@@ -12,7 +12,7 @@ pub trait Operation {
 
 pub enum OpAction {
     None,
-    Jump(usize),
+    Jump(i32),
     Call(Function, Vec<Value>),
     CallNative(NativeFn, Vec<Value>),
     Return(Value),

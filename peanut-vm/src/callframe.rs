@@ -26,8 +26,8 @@ impl CallFrame {
         self.stack.push(val);
     }
 
-    pub fn jump(&mut self, index: usize) {
-        self.cursor = index;
+    pub fn jump(&mut self, index: i32) {
+        self.cursor = (self.cursor as isize + index as isize) as usize;
     }
 
     pub fn exec(&mut self) -> Result<OpAction, OpError> {

@@ -4,19 +4,19 @@ use super::{CallStack, OpAction, OpError, Operation};
 
 new_op! {
     pub struct Jump {
-        pub dest: u32,
+        pub dest: i32,
     }
 }
 
 impl Operation for Jump {
     fn exec(&self, _: &mut CallStack) -> Result<OpAction, OpError> {
-        Ok(OpAction::Jump(self.dest as usize))
+        Ok(OpAction::Jump(self.dest))
     }
 }
 
 new_op! {
     pub struct JumpZero {
-        pub dest: u32,
+        pub dest: i32,
     }
 }
 
@@ -29,7 +29,7 @@ impl Operation for JumpZero {
             _ => false,
         };
         if is_zero {
-            Ok(OpAction::Jump(self.dest as usize))
+            Ok(OpAction::Jump(self.dest))
         } else {
             Ok(OpAction::None)
         }
@@ -38,7 +38,7 @@ impl Operation for JumpZero {
 
 new_op! {
     pub struct JumpNeg {
-        pub dest: u32,
+        pub dest: i32,
     }
 }
 
@@ -50,7 +50,7 @@ impl Operation for JumpNeg {
             _ => false,
         };
         if is_zero {
-            Ok(OpAction::Jump(self.dest as usize))
+            Ok(OpAction::Jump(self.dest))
         } else {
             Ok(OpAction::None)
         }
