@@ -10,6 +10,14 @@ impl Operation for StackCopy {
     }
 }
 
+new_op_empty!(StackPop);
+impl Operation for StackPop {
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
+        m.pop()?;
+        Ok(OpAction::None)
+    }
+}
+
 new_op! {
     pub struct StackLoad {
         local: u8,

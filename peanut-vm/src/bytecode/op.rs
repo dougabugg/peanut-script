@@ -114,7 +114,7 @@ create_op_type!(
     // call and jump
     Call, Return, Jump, JumpZero, JumpNeg,
     // literal and stack
-    LiteralCreate, StackCopy, StackLoad, StackStore,
+    LiteralCreate, StackCopy, StackPop, StackLoad, StackStore,
     // tuple
     TupleCreate, TupleFromList, TupleWeakRef, TupleWeakUpgrade,
     // table and list
