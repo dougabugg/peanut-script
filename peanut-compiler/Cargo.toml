@@ -6,5 +6,5 @@ edition = "2018"
 
 [dependencies]
 peanut-script-vm = { path = "../peanut-vm" }
-pest = "2.1"
-pest_derive = "2.1"
+# pest = "2.1"
+# pest_derive = "2.1"

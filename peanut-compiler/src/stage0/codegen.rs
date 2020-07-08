@@ -42,10 +42,6 @@ impl CodeGenerator {
         self.ops.append(&mut ops);
     }
 
-    pub fn here(&self) -> usize {
-        self.ops.len()
-    }
-
     pub fn push(&mut self, op: Op) {
         self.ops.push(op);
     }
@@ -56,13 +52,8 @@ impl CodeGenerator {
         i
     }
 
-    pub fn label_target(&mut self, label: usize, target: usize) {
-        self.labels[label].set_target(target);
-    }
-
     pub fn label_here(&mut self, label: usize) {
-        let target = self.ops.len();
-        self.labels[label].set_target(target);
+        self.labels[label].set_target(self.ops.len());
     }
 
     pub fn push_jump(&mut self, label: usize, jump: Op) {

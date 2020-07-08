@@ -1,7 +1,7 @@
 use crate::vm::bytecode::{Op, ops};
 
 mod codegen;
-mod expr;
+pub mod expr;
 
 use codegen::CodeGenerator;
 
