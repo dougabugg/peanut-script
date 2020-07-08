@@ -6,23 +6,21 @@ use super::{Identity, Tuple};
 
 #[derive(Clone)]
 pub struct Function {
-    pub stack_size: u8,
     pub module: Tuple,
-    pub ops: Rc<Vec<Op>>,
+    pub ops: Rc<[Op]>,
 }
 
 impl Function {
-    pub fn new(stack_size: u8, module: Tuple, ops: Vec<Op>) -> Function {
+    pub fn new(module: Tuple, ops: Vec<Op>) -> Function {
         Function {
-            stack_size,
             module,
-            ops: Rc::new(ops),
+            ops: Rc::from(ops),
         }
     }
 }
 
 impl Identity for Function {
     fn identity(&self) -> usize {
-        Rc::as_ptr(&self.ops) as usize
+        Rc::as_ptr(&self.ops).cast::<Op>() as usize
     }
 }

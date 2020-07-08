@@ -1,8 +1,6 @@
 #[macro_use]
 mod macros;
 
-mod stackargs;
-
 mod buffer;
 mod call;
 mod cmp;
@@ -13,6 +11,7 @@ mod literal;
 mod num;
 mod real;
 mod seq;
+mod stack;
 mod table;
 mod tuple;
 
@@ -20,17 +19,16 @@ use super::{BytesIO, BytesReadError, DataIO, OpAction, OpError, Operation};
 
 use crate::CallStack;
 
-use stackargs::StackArgs;
-
 pub use buffer::{BufferCreate, BufferGetSlice, BufferSetSlice};
 pub use call::{Call, Return};
-pub use cmp::{Cmp, SameType};
+pub use cmp::{Cmp, GetType};
 pub use int::{And, Not, Or, Shl, Shr, Xor};
 pub use jump::{Jump, JumpNeg, JumpZero};
 pub use list::{ListCreate, ListGetSlice, ListPop, ListPush};
-pub use literal::{LiteralCreate, LiteralValue, LocalCopy};
+pub use literal::{LiteralCreate, LiteralValue};
 pub use num::{Add, Div, Mul, Neg, Rem, Sub};
-pub use real::{Ceil, Floor, Round, Trunc};
-pub use seq::{SeqAppend, SeqGet, SeqLen, SeqQuickGet, SeqQuickSet, SeqResize, SeqSet, SeqToList};
+pub use real::{Ceil, Floor, IntToReal, Round, Trunc};
+pub use seq::{SeqAppend, SeqGet, SeqLen, SeqResize, SeqSet, SeqToList};
+pub use stack::{StackCopy, StackLoad, StackStore};
 pub use table::TableCreate;
 pub use tuple::{TupleCreate, TupleFromList, TupleWeakRef, TupleWeakUpgrade};

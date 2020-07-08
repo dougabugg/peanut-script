@@ -1,20 +1,18 @@
 use std::convert::TryInto;
 
-use crate::datamodel::{Integer, Value};
+use crate::datamodel::Integer;
 
-use super::{CallStack, DataIO, OpAction, OpError, Operation};
+use super::{CallStack, OpAction, OpError, Operation};
 
 macro_rules! impl_int_op {
     ($name:ident, $e:expr) => {
-        new_bin_op!($name);
+        new_op_empty!($name);
         impl Operation for $name {
             fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-                let lhs: &Value = m.load(self.lhs)?;
-                let rhs: &Value = m.load(self.rhs)?;
-                let lhs = *TryInto::<&Integer>::try_into(lhs)?;
-                let rhs = *TryInto::<&Integer>::try_into(rhs)?;
+                let lhs = TryInto::<Integer>::try_into(m.pop()?)?;
+                let rhs = TryInto::<Integer>::try_into(m.pop()?)?;
                 let result = $e(lhs, rhs).into();
-                m.store(self.out, result)?;
+                m.push(result);
                 Ok(OpAction::None)
             }
         }
@@ -27,12 +25,11 @@ impl_int_op!(And, |lhs, rhs| lhs & rhs);
 impl_int_op!(Or, |lhs, rhs| lhs | rhs);
 impl_int_op!(Xor, |lhs, rhs| lhs ^ rhs);
 
-new_unary_op!(Not);
+new_op_empty!(Not);
 impl Operation for Not {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let val: &Value = m.load(self.val)?;
-        let val = *TryInto::<&Integer>::try_into(val)?;
-        m.store(self.out, (!val).into())?;
+        let val: Integer = m.pop()?.try_into()?;
+        m.push((!val).into());
         Ok(OpAction::None)
     }
 }

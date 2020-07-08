@@ -2,60 +2,43 @@ use std::convert::TryInto;
 
 use crate::datamodel::Buffer;
 
-use super::{CallStack, DataIO, OpAction, OpError, Operation};
+use super::{CallStack, OpAction, OpError, Operation};
 
-new_unary_op!(BufferCreate);
+new_op_empty!(BufferCreate);
 impl Operation for BufferCreate {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let len = *TryInto::<&i64>::try_into(m.load(self.val)?)?;
+        let len: i64 = m.pop()?.try_into()?;
         let val = Buffer::empty();
         val.resize(len as usize);
-        m.store(self.out, val.into())?;
+        m.push(val.into());
         Ok(OpAction::None)
     }
 }
 
-new_op! {
-    pub struct BufferGetSlice {
-        buffer: u8,
-        a: u8,
-        b: u8,
-        out: u8,
-    }
-}
-
+new_op_empty!(BufferGetSlice);
 impl Operation for BufferGetSlice {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let buffer: &Buffer = m.load(self.buffer)?.try_into()?;
-        let a = *TryInto::<&i64>::try_into(m.load(self.a)?)? as usize;
-        let b = *TryInto::<&i64>::try_into(m.load(self.b)?)?;
+        let buffer: Buffer = m.pop()?.try_into()?;
+        let a: i64 = m.pop()?.try_into()?;
+        let b: i64 = m.pop()?.try_into()?;
         let slice = buffer
-            .get_slice(a, b as usize)
+            .get_slice(a as usize, b as usize)
             .ok_or(OpError::IndexRead(b))?;
-        m.store(self.out, slice.into())?;
+        m.push(slice.into());
         Ok(OpAction::None)
     }
 }
 
-new_op! {
-    pub struct BufferSetSlice {
-        buffer: u8,
-        src: u8,
-        src_offset: u8,
-        offset: u8,
-        len: u8,
-    }
-}
-
+new_op_empty!(BufferSetSlice);
 impl Operation for BufferSetSlice {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let buffer: &Buffer = m.load(self.buffer)?.try_into()?;
-        let src: &Buffer = m.load(self.src)?.try_into()?;
-        let src_offset = *TryInto::<&i64>::try_into(m.load(self.src_offset)?)? as usize;
-        let offset = *TryInto::<&i64>::try_into(m.load(self.offset)?)? as usize;
-        let len = *TryInto::<&i64>::try_into(m.load(self.len)?)?;
+        let buffer: Buffer = m.pop()?.try_into()?;
+        let src: Buffer = m.pop()?.try_into()?;
+        let src_offset: i64 = m.pop()?.try_into()?;
+        let offset: i64 = m.pop()?.try_into()?;
+        let len: i64 = m.pop()?.try_into()?;
         buffer
-            .set_slice(src, src_offset, offset, len as usize)
+            .set_slice(&src, src_offset as usize, offset as usize, len as usize)
             .ok_or(OpError::IndexWrite(len))?;
         Ok(OpAction::None)
     }

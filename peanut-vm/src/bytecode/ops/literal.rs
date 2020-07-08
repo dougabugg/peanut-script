@@ -1,15 +1,6 @@
 use crate::datamodel::Value;
 
-use super::{BytesIO, BytesReadError, CallStack, DataIO, OpAction, OpError, Operation};
-
-new_unary_op!(LocalCopy);
-impl Operation for LocalCopy {
-    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let val = m.load(self.val)?.clone();
-        m.store(self.out, val)?;
-        Ok(OpAction::None)
-    }
-}
+use super::{BytesIO, BytesReadError, CallStack, OpAction, OpError, Operation};
 
 #[derive(Clone, Copy)]
 pub enum LiteralValue {
@@ -62,7 +53,6 @@ impl BytesIO for LiteralValue {
 new_op! {
     pub struct LiteralCreate {
         val: LiteralValue,
-        out: u8,
     }
 }
 
@@ -73,7 +63,7 @@ impl Operation for LiteralCreate {
             LiteralValue::Integer(int) => int.into(),
             LiteralValue::Real(real) => real.into(),
         };
-        m.store(self.out, val)?;
+        m.push(val);
         Ok(OpAction::None)
     }
 }

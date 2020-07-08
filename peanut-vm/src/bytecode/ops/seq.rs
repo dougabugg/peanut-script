@@ -2,12 +2,12 @@ use std::convert::TryInto;
 
 use crate::datamodel::{Identity, List, Value};
 
-use super::{CallStack, DataIO, OpAction, OpError, Operation};
+use super::{CallStack, OpAction, OpError, Operation};
 
-new_unary_op!(SeqLen);
+new_op_empty!(SeqLen);
 impl Operation for SeqLen {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let seq = m.load(self.val)?;
+        let seq = m.pop()?;
         let len = match seq {
             Value::Tuple(t) => t.len(),
             // Value::Table(t) => t.len(),
@@ -15,19 +15,19 @@ impl Operation for SeqLen {
             Value::Buffer(t) => t.len(),
             _ => return Err(OpError::BadType(seq.get_type())),
         };
-        m.store(self.out, (len as i64).into())?;
+        m.push((len as i64).into());
         Ok(OpAction::None)
     }
 }
 
-new_unary_op!(SeqResize);
+new_op_empty!(SeqResize);
 impl Operation for SeqResize {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let seq = m.load(self.val)?;
-        let len = *TryInto::<&i64>::try_into(m.load(self.out)?)? as usize;
+        let seq = m.pop()?;
+        let len: i64 = m.pop()?.try_into()?;
         match seq {
-            Value::List(t) => t.resize(len),
-            Value::Buffer(t) => t.resize(len),
+            Value::List(t) => t.resize(len as usize),
+            Value::Buffer(t) => t.resize(len as usize),
             _ => return Err(OpError::BadType(seq.get_type())),
         }
         Ok(OpAction::None)
@@ -44,24 +44,13 @@ fn seq_get(seq: &Value, index: i64) -> Result<Value, OpError> {
     }
 }
 
-new_bin_op!(SeqGet);
+new_op_empty!(SeqGet);
 impl Operation for SeqGet {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let seq = m.load(self.lhs)?;
-        let index = *TryInto::<&i64>::try_into(m.load(self.rhs)?)?;
-        let val = seq_get(seq, index)?;
-        m.store(self.out, val)?;
-        Ok(OpAction::None)
-    }
-}
-
-new_bin_op!(SeqQuickGet);
-impl Operation for SeqQuickGet {
-    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let seq = m.load(self.lhs)?;
-        let index = self.rhs as i64;
-        let val = seq_get(seq, index)?;
-        m.store(self.out, val.clone())?;
+        let seq = m.pop()?;
+        let index: i64 = m.pop()?.try_into()?;
+        let val = seq_get(&seq, index)?;
+        m.push(val);
         Ok(OpAction::None)
     }
 }
@@ -82,38 +71,13 @@ fn seq_set(seq: &Value, index: i64, val: &Value) -> Result<Value, OpError> {
     }
 }
 
-new_op! {
-    pub struct SeqSet {
-        seq: u8,
-        index: u8,
-        val: u8,
-    }
-}
-
+new_op_empty!(SeqSet);
 impl Operation for SeqSet {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let seq = m.load(self.seq)?;
-        let index = *TryInto::<&i64>::try_into(m.load(self.index)?)?;
-        let val = m.load(self.val)?;
-        seq_set(seq, index, val)?;
-        Ok(OpAction::None)
-    }
-}
-
-new_op! {
-    pub struct SeqQuickSet {
-        seq: u8,
-        index: u8,
-        val: u8,
-    }
-}
-
-impl Operation for SeqQuickSet {
-    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let seq = m.load(self.seq)?;
-        let index = self.index as i64;
-        let val = m.load(self.val)?;
-        seq_set(seq, index, val)?;
+        let seq = m.pop()?;
+        let index: i64 = m.pop()?.try_into()?;
+        let val = m.pop()?;
+        seq_set(&seq, index, &val)?;
         Ok(OpAction::None)
     }
 }
@@ -128,30 +92,24 @@ fn seq_to_vec(seq: &Value) -> Result<Vec<Value>, OpError> {
     })
 }
 
-new_unary_op!(SeqToList);
+new_op_empty!(SeqToList);
 impl Operation for SeqToList {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let seq = m.load(self.val)?;
-        let list = List::new(seq_to_vec(seq)?);
-        m.store(self.out, list.into())?;
+        let seq = m.pop()?;
+        let list = List::new(seq_to_vec(&seq)?);
+        m.push(list.into());
         Ok(OpAction::None)
     }
 }
 
-new_op! {
-    pub struct SeqAppend {
-        seq: u8,
-        src: u8,
-    }
-}
-
+new_op_empty!(SeqAppend);
 impl Operation for SeqAppend {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let seq = m.load(self.seq)?;
-        let src = m.load(self.src)?;
+        let seq = m.pop()?;
+        let src = m.pop()?;
         match seq {
             Value::List(list) => {
-                list.append(seq_to_vec(src)?);
+                list.append(seq_to_vec(&src)?);
             }
             Value::Buffer(buffer) => match src {
                 Value::Buffer(src) => {
@@ -163,7 +121,7 @@ impl Operation for SeqAppend {
                 }
                 _ => {
                     let mut acc = Vec::new();
-                    for val in seq_to_vec(src)?.into_iter() {
+                    for val in seq_to_vec(&src)?.into_iter() {
                         acc.push(TryInto::<i64>::try_into(val)? as u8)
                     }
                     buffer.append(&acc);

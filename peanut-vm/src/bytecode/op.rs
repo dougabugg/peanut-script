@@ -13,14 +13,14 @@ pub trait Operation {
 pub enum OpAction {
     None,
     Jump(usize),
-    Call(Function, Vec<Value>, u8),
-    CallNative(NativeFn, Vec<Value>, u8),
+    Call(Function, Vec<Value>),
+    CallNative(NativeFn, Vec<Value>),
     Return(Value),
 }
 
 pub enum OpError {
-    StackRead(u8),
-    StackWrite(u8),
+    StackEmpty,
+    LocalRead(u8),
     IndexRead(i64),
     IndexWrite(i64),
     IntoType(ValueTryIntoError),
@@ -110,11 +110,11 @@ create_op_type!(
     // int
     Shl, Shr, And, Or, Xor, Not,
     // cmp and real
-    Cmp, SameType, Floor, Ceil, Trunc, Round,
+    Cmp, GetType, IntToReal, Floor, Ceil, Trunc, Round,
     // call and jump
     Call, Return, Jump, JumpZero, JumpNeg,
-    // literal
-    LocalCopy, LiteralCreate,
+    // literal and stack
+    LiteralCreate, StackCopy, StackLoad, StackStore,
     // tuple
     TupleCreate, TupleFromList, TupleWeakRef, TupleWeakUpgrade,
     // table and list
@@ -122,5 +122,5 @@ create_op_type!(
     // buffer
     BufferCreate, BufferGetSlice, BufferSetSlice,
     // seq
-    SeqLen, SeqResize, SeqGet, SeqSet, SeqQuickGet, SeqQuickSet, SeqToList, SeqAppend
+    SeqLen, SeqResize, SeqGet, SeqSet, SeqToList, SeqAppend
 );

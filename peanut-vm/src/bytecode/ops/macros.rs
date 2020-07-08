@@ -1,53 +1,13 @@
-macro_rules! new_bin_op {
+macro_rules! new_op_empty {
     ($name:ident) => {
-        pub struct $name {
-            pub lhs: u8,
-            pub rhs: u8,
-            pub out: u8,
-        }
+        pub struct $name;
 
-        impl $name {
-            pub fn new(lhs: u8, rhs: u8, out: u8) -> $name {
-                $name { lhs, rhs, out }
+        impl super::BytesIO for $name {
+            fn read<'a>(b: &'a [u8]) -> Result<(&'a [u8], Self), super::BytesReadError<'a>> {
+                Ok((b, $name))
             }
-        }
-
-        impl DataIO for $name {
-            type Target = (u8, u8, u8);
-            fn from_bytes(t: Self::Target) -> Option<Self> {
-                Some($name {
-                    lhs: t.0,
-                    rhs: t.1,
-                    out: t.2,
-                })
-            }
-            fn into_bytes(&self) -> Self::Target {
-                (self.lhs, self.rhs, self.out)
-            }
-        }
-    };
-}
-
-macro_rules! new_unary_op {
-    ($name:ident) => {
-        pub struct $name {
-            pub val: u8,
-            pub out: u8,
-        }
-
-        impl $name {
-            pub fn new(val: u8, out: u8) -> $name {
-                $name { val, out }
-            }
-        }
-
-        impl DataIO for $name {
-            type Target = (u8, u8);
-            fn from_bytes(t: Self::Target) -> Option<Self> {
-                Some($name { val: t.0, out: t.1 })
-            }
-            fn into_bytes(&self) -> Self::Target {
-                (self.val, self.out)
+            fn write<'a>(_: &Self, b: &'a mut [u8]) -> Option<&'a mut [u8]> {
+                Some(b)
             }
         }
     };
@@ -67,7 +27,7 @@ macro_rules! new_op {
         }
 
         #[allow(unused_parens)]
-        impl DataIO for $name {
+        impl super::DataIO for $name {
             type Target = ($($type),+);
             fn from_bytes(t: Self::Target) -> Option<Self> {
                 let ($($field),+) = t;

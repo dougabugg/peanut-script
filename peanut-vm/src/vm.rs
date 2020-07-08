@@ -38,27 +38,25 @@ impl VirtualMachine {
                 let frame = self.frame.as_mut().unwrap();
                 frame.jump(dest);
             }
-            OpAction::Call(func, args, output) => {
+            OpAction::Call(func, args) => {
                 let mut callee = Box::new(CallFrame::new(func));
-                callee.output = output;
-                for (i, arg) in args.into_iter().enumerate() {
-                    callee.store(i as u8, arg)?;
+                for arg in args.into_iter() {
+                    callee.push(arg);
                 }
                 mem::swap(&mut self.frame, &mut callee.parent);
                 self.frame = Some(callee);
             }
-            OpAction::CallNative(func, args, output) => {
+            OpAction::CallNative(func, args) => {
                 let frame = self.frame.as_mut().unwrap();
-                frame.store(output, func(args))?;
+                frame.push(func(args));
             }
             OpAction::Return(val) => {
                 let frame = self.frame.as_mut().unwrap();
                 let mut parent = None;
                 mem::swap(&mut frame.parent, &mut parent);
-                let output = frame.output;
                 match parent {
                     Some(mut parent) => {
-                        parent.store(output, val)?;
+                        parent.push(val);
                         self.frame = Some(parent);
                     }
                     None => {

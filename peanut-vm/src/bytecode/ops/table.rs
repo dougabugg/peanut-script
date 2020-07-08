@@ -2,12 +2,12 @@ use std::convert::TryInto;
 
 use crate::datamodel::{Integer, List, Table, Tuple, Value};
 
-use super::{CallStack, DataIO, OpAction, OpError, Operation};
+use super::{CallStack, OpAction, OpError, Operation};
 
-new_unary_op!(TableCreate);
+new_op_empty!(TableCreate);
 impl Operation for TableCreate {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let list: &List = m.load(self.val)?.try_into()?;
+        let list: List = m.pop()?.try_into()?;
         let mut table = Vec::new();
         for val in list.as_slice().iter() {
             let tuple: &Tuple = val.try_into()?;
@@ -16,7 +16,7 @@ impl Operation for TableCreate {
             table.push((k as u64, v));
         }
         let table = Table::new(table);
-        m.store(self.out, table.into())?;
+        m.push(table.into());
         Ok(OpAction::None)
     }
 }

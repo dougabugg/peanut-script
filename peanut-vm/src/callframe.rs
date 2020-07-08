@@ -8,23 +8,22 @@ pub struct CallFrame {
     pub function: Function,
     pub cursor: usize,
     pub stack: CallStack,
-    pub output: u8,
 }
 
 impl CallFrame {
     pub fn new(function: Function) -> CallFrame {
-        let stack = CallStack::new(function.stack_size);
+        let mut stack = CallStack::new();
+        stack.store(0, function.module.clone().into());
         CallFrame {
             parent: None,
             function,
             cursor: 0,
             stack,
-            output: 0,
         }
     }
 
-    pub fn store(&mut self, index: u8, val: Value) -> Result<(), OpError> {
-        self.stack.store(index, val)
+    pub fn push(&mut self, val: Value) {
+        self.stack.push(val);
     }
 
     pub fn jump(&mut self, index: usize) {

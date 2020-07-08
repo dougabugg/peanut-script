@@ -20,7 +20,7 @@ impl Module {
                     refs.push((i, r as usize));
                     Value::None
                 }
-                ModuleItem::Function(f) => FuncVal::new(f.stack_size, tuple.clone(), f.ops).into(),
+                ModuleItem::Function(f) => FuncVal::new(tuple.clone(), f.ops).into(),
             };
             tuple.set(i, val);
         }
