@@ -10,8 +10,8 @@ use super::{CallStack, OpAction, OpError, Operation};
 new_op_empty!(Cmp);
 impl Operation for Cmp {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let lhs = m.pop()?;
         let rhs = m.pop()?;
+        let lhs = m.pop()?;
         let result = match lhs {
             Value::None => match rhs {
                 Value::None => Ordering::Equal.into(),

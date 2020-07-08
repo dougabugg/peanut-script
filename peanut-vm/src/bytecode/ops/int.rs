@@ -9,8 +9,8 @@ macro_rules! impl_int_op {
         new_op_empty!($name);
         impl Operation for $name {
             fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-                let lhs = TryInto::<Integer>::try_into(m.pop()?)?;
-                let rhs = TryInto::<Integer>::try_into(m.pop()?)?;
+                let rhs: Integer = m.pop()?.try_into()?;
+                let lhs: Integer = m.pop()?.try_into()?;
                 let result = $e(lhs, rhs).into();
                 m.push(result);
                 Ok(OpAction::None)

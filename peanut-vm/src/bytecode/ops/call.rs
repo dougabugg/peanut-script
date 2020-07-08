@@ -10,12 +10,13 @@ new_op! {
 
 impl Operation for Call {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let target = m.pop()?;
         let mut args = Vec::new();
         for _ in 0..self.args {
             let val = m.pop()?;
             args.push(val);
         }
+        let args = args.into_iter().rev().collect();
+        let target = m.pop()?;
         match target {
             Value::Function(t) => Ok(OpAction::Call(t, args)),
             Value::NativeFn(t) => Ok(OpAction::CallNative(t, args)),

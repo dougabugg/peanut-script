@@ -23,8 +23,8 @@ impl Operation for SeqLen {
 new_op_empty!(SeqResize);
 impl Operation for SeqResize {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let seq = m.pop()?;
         let len: i64 = m.pop()?.try_into()?;
+        let seq = m.pop()?;
         match seq {
             Value::List(t) => t.resize(len as usize),
             Value::Buffer(t) => t.resize(len as usize),
@@ -47,8 +47,8 @@ fn seq_get(seq: &Value, index: i64) -> Result<Value, OpError> {
 new_op_empty!(SeqGet);
 impl Operation for SeqGet {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let seq = m.pop()?;
         let index: i64 = m.pop()?.try_into()?;
+        let seq = m.pop()?;
         let val = seq_get(&seq, index)?;
         m.push(val);
         Ok(OpAction::None)
@@ -74,9 +74,9 @@ fn seq_set(seq: &Value, index: i64, val: &Value) -> Result<Value, OpError> {
 new_op_empty!(SeqSet);
 impl Operation for SeqSet {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let seq = m.pop()?;
-        let index: i64 = m.pop()?.try_into()?;
         let val = m.pop()?;
+        let index: i64 = m.pop()?.try_into()?;
+        let seq = m.pop()?;
         seq_set(&seq, index, &val)?;
         Ok(OpAction::None)
     }
@@ -105,8 +105,8 @@ impl Operation for SeqToList {
 new_op_empty!(SeqAppend);
 impl Operation for SeqAppend {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let seq = m.pop()?;
         let src = m.pop()?;
+        let seq = m.pop()?;
         match seq {
             Value::List(list) => {
                 list.append(seq_to_vec(&src)?);

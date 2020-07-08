@@ -25,8 +25,8 @@ impl Operation for ListCreate {
 new_op_empty!(ListPush);
 impl Operation for ListPush {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let list: List = m.pop()?.try_into()?;
         let val: Value = m.pop()?;
+        let list: List = m.pop()?.try_into()?;
         list.push(val);
         Ok(OpAction::None)
     }
@@ -48,9 +48,9 @@ impl Operation for ListPop {
 new_op_empty!(ListGetSlice);
 impl Operation for ListGetSlice {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-        let list: List = m.pop()?.try_into()?;
-        let a: i64 = m.pop()?.try_into()?;
         let b: i64 = m.pop()?.try_into()?;
+        let a: i64 = m.pop()?.try_into()?;
+        let list: List = m.pop()?.try_into()?;
         let slice = list
             .get_slice(a as usize, b as usize)
             .ok_or(OpError::IndexRead(b))?;

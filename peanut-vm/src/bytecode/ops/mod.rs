@@ -29,6 +29,6 @@ pub use literal::{LiteralCreate, LiteralValue};
 pub use num::{Add, Div, Mul, Neg, Rem, Sub};
 pub use real::{Ceil, Floor, IntToReal, Round, Trunc};
 pub use seq::{SeqAppend, SeqGet, SeqLen, SeqResize, SeqSet, SeqToList};
-pub use stack::{StackCopy, StackLoad, StackStore, StackPop};
+pub use stack::{StackCopy, StackLoad, StackStore, StackPop, StackSwap};
 pub use table::TableCreate;
 pub use tuple::{TupleCreate, TupleFromList, TupleWeakRef, TupleWeakUpgrade};

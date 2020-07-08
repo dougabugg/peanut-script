@@ -9,15 +9,15 @@ macro_rules! impl_math_op {
         new_op_empty!($name);
         impl Operation for $name {
             fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
-                let lhs = m.pop()?;
                 let rhs = m.pop()?;
+                let lhs = m.pop()?;
                 let result = match lhs {
                     Value::Integer(lhs) => {
-                        let rhs = TryInto::<Integer>::try_into(rhs)?;
+                        let rhs: Integer = rhs.try_into()?;
                         $e(lhs, rhs).into()
                     }
                     Value::Real(lhs) => {
-                        let rhs = TryInto::<Real>::try_into(rhs)?;
+                        let rhs: Real = rhs.try_into()?;
                         $e(lhs, rhs).into()
                     }
                     _ => return Err(OpError::BadType(lhs.get_type())),
