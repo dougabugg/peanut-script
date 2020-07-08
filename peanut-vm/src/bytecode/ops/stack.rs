@@ -45,3 +45,18 @@ impl Operation for StackStore {
         Ok(OpAction::None)
     }
 }
+
+new_op! {
+    pub struct StackSwap {
+        local: u8,
+    }
+}
+
+impl Operation for StackSwap {
+    fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
+        let mut val = m.pop()?;
+        m.swap(self.local, &mut val);
+        m.push(val);
+        Ok(OpAction::None)
+    }
+}

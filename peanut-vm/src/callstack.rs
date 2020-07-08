@@ -1,3 +1,5 @@
+use std::mem::swap;
+
 use crate::bytecode::OpError;
 use crate::datamodel::Value;
 
@@ -20,15 +22,22 @@ impl CallStack {
             .ok_or(OpError::LocalRead(index))
     }
 
+    fn get_mut_or_resize(&mut self, index: u8) -> &mut Value {
+        let index = index as usize;
+        if index >= self.locals.len() {
+            self.locals.resize_with(index + 1, || Value::None);
+        }
+        unsafe { self.locals.get_unchecked_mut(index) }
+    }
+
     pub fn store(&mut self, index: u8, val: Value) {
-        let out = match self.locals.get_mut(index as usize) {
-            Some(val) => val,
-            None => {
-                self.locals.resize_with(index as usize + 1, || Value::None);
-                unsafe { self.locals.get_unchecked_mut(index as usize) }
-            }
-        };
+        let out = self.get_mut_or_resize(index);
         *out = val;
+    }
+
+    pub fn swap(&mut self, index: u8, val: &mut Value) {
+        let out = self.get_mut_or_resize(index);
+        swap(out, val);
     }
 
     pub fn push(&mut self, val: Value) {
