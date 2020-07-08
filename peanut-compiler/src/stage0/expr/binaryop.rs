@@ -1,4 +1,4 @@
-use super::{CodeGenerator, Compile, Expr, Op, ops};
+use super::{ops, CodeGenerator, Expr, Op};
 
 pub struct BinaryOp {
     op_type: BinaryOpType,
@@ -13,65 +13,65 @@ pub enum BinaryOpType {
     Identity, LogicAnd, LogicOr
 }
 
-impl Compile for BinaryOp {
-    fn compile(&self) -> Vec<Op> {
+impl BinaryOp {
+    pub fn compile(&self) -> Vec<Op> {
         let mut g = CodeGenerator::new();
         match self.op_type {
             BinaryOpType::Add => {
                 g.append(self.lhs.compile());
                 g.append(self.rhs.compile());
                 g.push(ops::Add.into());
-            },
+            }
             BinaryOpType::Sub => {
                 g.append(self.lhs.compile());
                 g.append(self.rhs.compile());
                 g.push(ops::Sub.into());
-            },
+            }
             BinaryOpType::Mul => {
                 g.append(self.lhs.compile());
                 g.append(self.rhs.compile());
                 g.push(ops::Mul.into());
-            },
+            }
             BinaryOpType::Div => {
                 g.append(self.lhs.compile());
                 g.append(self.rhs.compile());
                 g.push(ops::Div.into());
-            },
+            }
             BinaryOpType::Rem => {
                 g.append(self.lhs.compile());
                 g.append(self.rhs.compile());
                 g.push(ops::Rem.into());
-            },
+            }
             BinaryOpType::Shl => {
                 g.append(self.lhs.compile());
                 g.append(self.rhs.compile());
                 g.push(ops::Shl.into());
-            },
+            }
             BinaryOpType::Shr => {
                 g.append(self.lhs.compile());
                 g.append(self.rhs.compile());
                 g.push(ops::Shr.into());
-            },
+            }
             BinaryOpType::And => {
                 g.append(self.lhs.compile());
                 g.append(self.rhs.compile());
                 g.push(ops::And.into());
-            },
+            }
             BinaryOpType::Or => {
                 g.append(self.lhs.compile());
                 g.append(self.rhs.compile());
                 g.push(ops::Or.into());
-            },
+            }
             BinaryOpType::Xor => {
                 g.append(self.lhs.compile());
                 g.append(self.rhs.compile());
                 g.push(ops::Xor.into());
-            },
+            }
             BinaryOpType::Identity => {
                 g.append(self.lhs.compile());
                 g.append(self.rhs.compile());
                 g.push(ops::Cmp.into());
-            },
+            }
             BinaryOpType::Equal => {
                 let label_true = g.create_label();
                 let label_next = g.create_label();
@@ -90,7 +90,7 @@ impl Compile for BinaryOp {
                 g.label_here(label_true);
                 g.push(ops::LiteralCreate::new(1.into()).into());
                 g.label_here(label_next);
-            },
+            }
             BinaryOpType::NotEqual => {
                 let label_false = g.create_label();
                 let label_next = g.create_label();
@@ -109,7 +109,7 @@ impl Compile for BinaryOp {
                 g.label_here(label_false);
                 g.push(ops::LiteralCreate::new(0.into()).into());
                 g.label_here(label_next);
-            },
+            }
             BinaryOpType::Greater => {
                 let label_true = g.create_label();
                 let label_next = g.create_label();
@@ -130,7 +130,7 @@ impl Compile for BinaryOp {
                 g.label_here(label_true);
                 g.push(ops::LiteralCreate::new(1.into()).into());
                 g.label_here(label_next);
-            },
+            }
             BinaryOpType::GreaterOrEqual => {
                 let label_false = g.create_label();
                 let label_next = g.create_label();
@@ -149,7 +149,7 @@ impl Compile for BinaryOp {
                 g.label_here(label_false);
                 g.push(ops::LiteralCreate::new(0.into()).into());
                 g.label_here(label_next);
-            },
+            }
             BinaryOpType::Less => {
                 let label_true = g.create_label();
                 let label_next = g.create_label();
@@ -168,7 +168,7 @@ impl Compile for BinaryOp {
                 g.label_here(label_true);
                 g.push(ops::LiteralCreate::new(1.into()).into());
                 g.label_here(label_next);
-            },
+            }
             BinaryOpType::LessOrEqual => {
                 let label_false = g.create_label();
                 let label_next = g.create_label();
@@ -189,7 +189,7 @@ impl Compile for BinaryOp {
                 g.label_here(label_false);
                 g.push(ops::LiteralCreate::new(0.into()).into());
                 g.label_here(label_next);
-            },
+            }
             BinaryOpType::LogicAnd => {
                 let label_false = g.create_label();
                 let label_next = g.create_label();
@@ -205,7 +205,7 @@ impl Compile for BinaryOp {
                 g.label_here(label_false);
                 g.push(ops::LiteralCreate::new(0.into()).into());
                 g.label_here(label_next);
-            },
+            }
             BinaryOpType::LogicOr => {
                 let label_true = g.create_label();
                 let label_next = g.create_label();
@@ -223,7 +223,7 @@ impl Compile for BinaryOp {
                 g.label_here(label_true);
                 g.push(ops::LiteralCreate::new(1.into()).into());
                 g.label_here(label_next);
-            },
+            }
         }
         g.into_vec()
     }

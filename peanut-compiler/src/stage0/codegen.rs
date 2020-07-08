@@ -60,7 +60,7 @@ impl CodeGenerator {
         let i = self.ops.len();
         self.labels[label].jumps.push(i);
         match jump {
-            Op::Jump(_) | Op::JumpZero(_) | Op::JumpNeg(_) => {},
+            Op::Jump(_) | Op::JumpZero(_) | Op::JumpNeg(_) => {}
             _ => panic!("op supplied is not a jump"),
         }
         self.ops.push(jump);

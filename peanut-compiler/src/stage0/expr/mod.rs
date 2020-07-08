@@ -1,4 +1,4 @@
-use super::{CodeGenerator, Compile, Op, ops};
+use super::{ops, CodeGenerator, Op};
 
 mod binaryop;
 mod unaryop;
@@ -14,14 +14,11 @@ pub enum Expr {
     ModuleScope(usize),
     BinaryOp(BinaryOp),
     UnaryOp(UnaryOp),
-    Assign {
-        place: Box<Expr>,
-        value: Box<Expr>,
-    },
+    Assign { place: Box<Expr>, value: Box<Expr> },
 }
 
-impl Compile for Expr {
-    fn compile(&self) -> Vec<Op> {
+impl Expr {
+    pub fn compile(&self) -> Vec<Op> {
         let mut g = CodeGenerator::new();
         match self {
             Expr::Literal(l) => g.push(ops::LiteralCreate::new(*l).into()),
@@ -30,7 +27,7 @@ impl Compile for Expr {
                 g.push(ops::StackLoad::new(0).into());
                 g.push(ops::LiteralCreate::new((*i as i64).into()).into());
                 g.push(ops::SeqGet.into());
-            },
+            }
             Expr::BinaryOp(b) => return b.compile(),
             Expr::UnaryOp(u) => return u.compile(),
             Expr::Assign { place, value } => {
@@ -38,17 +35,17 @@ impl Compile for Expr {
                     Expr::LocalScope(i) => {
                         g.append(value.compile());
                         g.push(ops::StackStore::new(i).into());
-                    },
+                    }
                     Expr::ModuleScope(i) => {
                         g.push(ops::StackLoad::new(0).into());
                         g.push(ops::LiteralCreate::new((i as i64).into()).into());
                         g.append(value.compile());
                         g.push(ops::SeqSet.into());
-                    },
+                    }
                     // TODO more here ... => { ... },
                     _ => panic!("invalid place expression"),
                 }
-            },
+            }
         }
         g.into_vec()
     }
