@@ -1,10 +1,7 @@
 use super::{ops, CodeGenerator, Op};
 
-mod binaryop;
-mod unaryop;
-
-pub use binaryop::{BinaryOp, BinaryOpType};
-pub use unaryop::{UnaryOp, UnaryOpType};
+use super::binaryop::{BinaryOp, BinaryOpType};
+use super::unaryop::{UnaryOp, UnaryOpType};
 
 pub type Literal = ops::LiteralValue;
 
