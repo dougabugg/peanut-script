@@ -10,12 +10,15 @@ new_op! {
 
 impl Operation for Call {
     fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
+        // NOTE: for expr `Call(A, B, C)`, args is reversed: `[C, B, A]`
         let mut args = Vec::new();
         for _ in 0..self.args {
             let val = m.pop()?;
             args.push(val);
         }
-        let args = args.into_iter().rev().collect();
+        // this should be commented out, since we want args to be reversed
+        // see crate::vm::VirtualMachine
+        // let args = args.into_iter().rev().collect();
         let target = m.pop()?;
         match target {
             Value::Function(t) => Ok(OpAction::Call(t, args)),

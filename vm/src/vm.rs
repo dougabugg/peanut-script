@@ -40,6 +40,10 @@ impl VirtualMachine {
             }
             OpAction::Call(func, args) => {
                 let mut callee = Box::new(CallFrame::new(func));
+                // NOTE: for expr `Call(A, B, C)`, args is reversed: `[C, B, A]`
+                // so now the order that they will be popped off the stack is
+                // (A, B, C), which is how the stage0 compiler expects them.
+                // see crate::bytecode::ops::Call for details
                 for arg in args.into_iter() {
                     callee.push(arg);
                 }

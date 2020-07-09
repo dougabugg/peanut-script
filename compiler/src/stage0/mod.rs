@@ -6,6 +6,7 @@ use codegen::CodeGenerator;
 
 mod binaryop;
 mod expr;
+mod module;
 mod statement;
 mod unaryop;
 
@@ -13,6 +14,7 @@ pub use binaryop::{BinaryOp, BinaryOpType};
 pub use expr::{Expr, Literal};
 pub use unaryop::{UnaryOp, UnaryOpType};
 pub use statement::{Statement, IfElse, If, Loop, LoopType, BufferSetSlice};
+pub use module::{Function, ModuleItem, Module, Program};
 
 /*
 Some notes on usage of stage0 AST

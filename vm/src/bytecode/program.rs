@@ -3,7 +3,7 @@ use super::{BytesIO, BytesReadError, Module};
 use crate::datamodel::{Tuple, Value};
 
 pub struct Program {
-    modules: Vec<Module>,
+    pub modules: Vec<Module>,
 }
 
 impl Program {

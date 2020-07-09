@@ -4,7 +4,7 @@ use super::{BytesIO, BytesReadError, Function};
 use crate::datamodel::{Buffer, Function as FuncVal, Tuple, Value};
 
 pub struct Module {
-    items: Vec<ModuleItem>,
+    pub items: Vec<ModuleItem>,
 }
 
 impl Module {
