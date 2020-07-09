@@ -5,6 +5,13 @@ use super::unaryop::{UnaryOp, UnaryOpType};
 
 pub type Literal = ops::LiteralValue;
 
+// pub struct Enum {
+//     span: (usize, usize),
+//     inner: Box<ExprInner>,
+// }
+
+// pub enum ExprInner {} ...
+
 pub enum Expr {
     Literal(Literal),
     LocalScope(u8),

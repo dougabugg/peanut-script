@@ -54,6 +54,16 @@ macro_rules! create_op_type {
             }
         }
 
+        impl OpType {
+            pub fn get_name(&self) -> &'static str {
+                match self {
+                    $(
+                        OpType::$op => stringify!($op)
+                    ),+
+                }
+            }
+        }
+
         impl Operation for Op {
             fn exec(&self, m: &mut CallStack) -> Result<OpAction, OpError> {
                 match self {
