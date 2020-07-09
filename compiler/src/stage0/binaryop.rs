@@ -1,83 +1,70 @@
-use super::{ops, CodeGenerator, Expr, Op};
+use super::shared::{BinaryOp, BinaryOpType};
+use super::{ops, CodeGenerator, Expr};
 
-pub struct BinaryOp {
-    op_type: BinaryOpType,
-    lhs: Box<Expr>,
-    rhs: Box<Expr>,
-}
-
-#[rustfmt::skip]
-pub enum BinaryOpType {
-    Add, Sub, Mul, Div, Rem, Shl, Shr, And, Or, Xor,
-    Equal, NotEqual, Greater, GreaterOrEqual, Less, LessOrEqual,
-    Identity, LogicAnd, LogicOr
-}
-
-impl BinaryOp {
-    pub fn compile(&self) -> Vec<Op> {
-        let mut g = CodeGenerator::new();
+impl BinaryOp<Expr> {
+    pub fn compile(&self, g: &mut CodeGenerator) {
         match self.op_type {
             BinaryOpType::Add => {
-                g.append(self.lhs.compile());
-                g.append(self.rhs.compile());
+                self.lhs.compile(g);
+                self.rhs.compile(g);
                 g.push(ops::Add.into());
             }
             BinaryOpType::Sub => {
-                g.append(self.lhs.compile());
-                g.append(self.rhs.compile());
+                self.lhs.compile(g);
+                self.rhs.compile(g);
                 g.push(ops::Sub.into());
             }
             BinaryOpType::Mul => {
-                g.append(self.lhs.compile());
-                g.append(self.rhs.compile());
+                self.lhs.compile(g);
+                self.rhs.compile(g);
                 g.push(ops::Mul.into());
             }
             BinaryOpType::Div => {
-                g.append(self.lhs.compile());
-                g.append(self.rhs.compile());
+                self.lhs.compile(g);
+                self.rhs.compile(g);
                 g.push(ops::Div.into());
             }
             BinaryOpType::Rem => {
-                g.append(self.lhs.compile());
-                g.append(self.rhs.compile());
+                self.lhs.compile(g);
+                self.rhs.compile(g);
                 g.push(ops::Rem.into());
             }
             BinaryOpType::Shl => {
-                g.append(self.lhs.compile());
-                g.append(self.rhs.compile());
+                self.lhs.compile(g);
+                self.rhs.compile(g);
                 g.push(ops::Shl.into());
             }
             BinaryOpType::Shr => {
-                g.append(self.lhs.compile());
-                g.append(self.rhs.compile());
+                self.lhs.compile(g);
+                self.rhs.compile(g);
                 g.push(ops::Shr.into());
             }
             BinaryOpType::And => {
-                g.append(self.lhs.compile());
-                g.append(self.rhs.compile());
+                self.lhs.compile(g);
+                self.rhs.compile(g);
                 g.push(ops::And.into());
             }
             BinaryOpType::Or => {
-                g.append(self.lhs.compile());
-                g.append(self.rhs.compile());
+                self.lhs.compile(g);
+                self.rhs.compile(g);
                 g.push(ops::Or.into());
             }
             BinaryOpType::Xor => {
-                g.append(self.lhs.compile());
-                g.append(self.rhs.compile());
+                self.lhs.compile(g);
+                self.rhs.compile(g);
                 g.push(ops::Xor.into());
             }
             BinaryOpType::Identity => {
-                g.append(self.lhs.compile());
-                g.append(self.rhs.compile());
+                self.lhs.compile(g);
+                self.rhs.compile(g);
                 g.push(ops::Cmp.into());
             }
             BinaryOpType::Equal => {
                 let label_true = g.create_label();
                 let label_next = g.create_label();
                 // compile lhs and rhs
-                g.append(self.lhs.compile());
-                g.append(self.rhs.compile());
+                self.lhs.compile(g);
+                self.rhs.compile(g);
                 // push -1 if a < b, 0 if a == b, 1 if a > b
                 g.push(ops::Cmp.into());
                 // if 0, jump to label_true
@@ -95,8 +82,8 @@ impl BinaryOp {
                 let label_false = g.create_label();
                 let label_next = g.create_label();
                 // compile lhs and rhs
-                g.append(self.lhs.compile());
-                g.append(self.rhs.compile());
+                self.lhs.compile(g);
+                self.rhs.compile(g);
                 // push -1 if a < b, 0 if a == b, 1 if a > b
                 g.push(ops::Cmp.into());
                 // if 0, jump to label_false
@@ -114,8 +101,8 @@ impl BinaryOp {
                 let label_true = g.create_label();
                 let label_next = g.create_label();
                 // compile lhs and rhs
-                g.append(self.lhs.compile());
-                g.append(self.rhs.compile());
+                self.lhs.compile(g);
+                self.rhs.compile(g);
                 // push -1 if a < b, 0 if a == b, 1 if a > b
                 g.push(ops::Cmp.into());
                 // flip sign
@@ -135,8 +122,8 @@ impl BinaryOp {
                 let label_false = g.create_label();
                 let label_next = g.create_label();
                 // compile lhs and rhs
-                g.append(self.lhs.compile());
-                g.append(self.rhs.compile());
+                self.lhs.compile(g);
+                self.rhs.compile(g);
                 // push -1 if a < b, 0 if a == b, 1 if a > b
                 g.push(ops::Cmp.into());
                 // if negative, jump to label_false
@@ -154,8 +141,8 @@ impl BinaryOp {
                 let label_true = g.create_label();
                 let label_next = g.create_label();
                 // compile lhs and rhs
-                g.append(self.lhs.compile());
-                g.append(self.rhs.compile());
+                self.lhs.compile(g);
+                self.rhs.compile(g);
                 // push -1 if a < b, 0 if a == b, 1 if a > b
                 g.push(ops::Cmp.into());
                 // if negative, jump to label_true
@@ -173,8 +160,8 @@ impl BinaryOp {
                 let label_false = g.create_label();
                 let label_next = g.create_label();
                 // compile lhs and rhs
-                g.append(self.lhs.compile());
-                g.append(self.rhs.compile());
+                self.lhs.compile(g);
+                self.rhs.compile(g);
                 // push -1 if a < b, 0 if a == b, 1 if a > b
                 g.push(ops::Cmp.into());
                 // flip sign
@@ -194,11 +181,11 @@ impl BinaryOp {
                 let label_false = g.create_label();
                 let label_next = g.create_label();
                 // compile lhs
-                g.append(self.lhs.compile());
+                self.lhs.compile(g);
                 // if zero, jump to label_false
                 g.push_jump(label_false, ops::JumpZero::new(0).into());
                 // compile rhs
-                g.append(self.rhs.compile());
+                self.rhs.compile(g);
                 // jump to label_next
                 g.push_jump(label_next, ops::Jump::new(0).into());
                 // push false (0)
@@ -210,13 +197,13 @@ impl BinaryOp {
                 let label_true = g.create_label();
                 let label_next = g.create_label();
                 // compile lhs
-                g.append(self.lhs.compile());
+                self.lhs.compile(g);
                 // flip sign
                 g.push(ops::Neg.into());
                 // if negative, jump to label_true
                 g.push_jump(label_true, ops::JumpNeg::new(0).into());
                 // compile rhs
-                g.append(self.rhs.compile());
+                self.rhs.compile(g);
                 // jump to label_next
                 g.push_jump(label_next, ops::Jump::new(0).into());
                 // push true (1)
@@ -225,6 +212,5 @@ impl BinaryOp {
                 g.label_here(label_next);
             }
         }
-        g.into_vec()
     }
 }

@@ -1,5 +1,6 @@
 extern crate peanut_script_vm as vm;
 
+pub mod shared;
 pub mod stage0;
 
 /*
@@ -36,7 +37,6 @@ from stage1 into it, like variable indexing and loop labeling.
 
 /*
 here's the new plan:
-- re-write stage0 to support variable indexing and loop labeling, still no type
-    checking.
-- write stage1 to implement the user-facing type system, with type checking.
+- refactor stage0, and allow it to share definitions with stage1
+- stage1 will be identical to stage0, except for variable indexing and loop labeling.
 */

@@ -82,7 +82,10 @@ impl CodeGenerator {
         self.get_label(label).jumps.push(i);
         match jump {
             Op::Jump(_) | Op::JumpZero(_) | Op::JumpNeg(_) => {}
-            _ => panic!("expected jump op, but found {} op", jump.get_type().get_name()),
+            _ => panic!(
+                "expected jump op, but found {} op",
+                jump.get_type().get_name()
+            ),
         }
         self.ops.push(jump);
     }

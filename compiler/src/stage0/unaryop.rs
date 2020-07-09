@@ -1,19 +1,9 @@
-use super::{ops, CodeGenerator, Expr, Op};
+use super::shared::{UnaryOp, UnaryOpType};
+use super::{ops, CodeGenerator, Expr};
 
-pub struct UnaryOp {
-    op_type: UnaryOpType,
-    expr: Box<Expr>,
-}
-
-#[rustfmt::skip]
-pub enum UnaryOpType {
-    Neg, Not, LogicNot, IntToReal, Floor, Ceil, Trunc, Round
-}
-
-impl UnaryOp {
-    pub fn compile(&self) -> Vec<Op> {
-        let mut g = CodeGenerator::new();
-        g.append(self.expr.compile());
+impl UnaryOp<Expr> {
+    pub fn compile(&self, g: &mut CodeGenerator) {
+        self.expr.compile(g);
         match self.op_type {
             UnaryOpType::Neg => {
                 g.push(ops::Neg.into());
@@ -51,6 +41,5 @@ impl UnaryOp {
                 g.push(ops::Round.into());
             }
         }
-        g.into_vec()
     }
 }

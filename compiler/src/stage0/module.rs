@@ -1,6 +1,7 @@
 use crate::vm::bytecode;
 
-use super::{ops, CodeGenerator, LiteralValue, Statement};
+use super::shared::{Module, ModuleItem, Program};
+use super::{ops, CodeGenerator, Statement};
 
 pub struct Function {
     args: Vec<u8>,
@@ -22,14 +23,7 @@ impl Function {
     }
 }
 
-pub enum ModuleItem {
-    LiteralValue(LiteralValue),
-    Buffer(Vec<u8>),
-    ModuleRef(u32),
-    Function(Function),
-}
-
-impl ModuleItem {
+impl ModuleItem<Function> {
     pub fn compile(self) -> bytecode::ModuleItem {
         match self {
             ModuleItem::LiteralValue(l) => bytecode::ModuleItem::LiteralValue(l),
@@ -40,22 +34,18 @@ impl ModuleItem {
     }
 }
 
-pub struct Module {
-    items: Vec<ModuleItem>,
-}
-
-impl Module {
+impl Module<Function> {
     pub fn compile(self) -> bytecode::Module {
-        bytecode::Module { items: self.items.into_iter().map(|m| m.compile()).collect() }
+        bytecode::Module {
+            items: self.items.into_iter().map(|m| m.compile()).collect(),
+        }
     }
 }
 
-pub struct Program {
-    modules: Vec<Module>,
-}
-
-impl Program {
+impl Program<Function> {
     pub fn compile(self) -> bytecode::Program {
-        bytecode::Program { modules: self.modules.into_iter().map(|m| m.compile()).collect() }
+        bytecode::Program {
+            modules: self.modules.into_iter().map(|m| m.compile()).collect(),
+        }
     }
 }
