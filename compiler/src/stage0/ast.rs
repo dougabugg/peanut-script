@@ -14,6 +14,25 @@ pub enum Statement {
     Continue {
         label: Option<usize>,
     },
+    SeqAppend {
+        seq: Expr,
+        src: Expr,
+    },
+    SeqResize {
+        seq: Expr,
+        size: Expr,
+    },
+    ListPush {
+        list: Expr,
+        value: Expr,
+    },
+    BufferSetSlice {
+        buffer: Expr,
+        src: Expr,
+        src_offset: Expr,
+        offset: Expr,
+        len: Expr,
+    },
 }
 
 pub struct IfElse {
