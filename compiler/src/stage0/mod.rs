@@ -1,5 +1,7 @@
 use crate::vm::bytecode::{ops, Op};
 
+use ops::LiteralValue;
+
 mod codegen;
 
 use codegen::CodeGenerator;
@@ -11,7 +13,7 @@ mod statement;
 mod unaryop;
 
 pub use binaryop::{BinaryOp, BinaryOpType};
-pub use expr::{Expr, Literal};
+pub use expr::Expr;
 pub use unaryop::{UnaryOp, UnaryOpType};
 pub use statement::{Statement, IfElse, If, Loop, LoopType, BufferSetSlice};
 pub use module::{Function, ModuleItem, Module, Program};

@@ -1,11 +1,19 @@
-use super::{ops, CodeGenerator, Op};
+use super::{ops, CodeGenerator, Op, LiteralValue};
 
 use super::binaryop::{BinaryOp, BinaryOpType};
 use super::unaryop::{UnaryOp, UnaryOpType};
 
-pub type Literal = ops::LiteralValue;
+/*
+eventually, we will want to create a "source map", which lets you determine the parts of
+the source code that generated a given bytecode operation. to accomplish that, we will
+rename the Expr enum into ExprInner, and make an Expr struct with inner and span fields.
+the span field will point to a span of text in some source code file.
 
-// pub struct Enum {
+this span info will be passed to the CodeGenerator so a complete "source map" can be
+generated once the index of each operation is known.
+*/
+
+// pub struct Expr {
 //     span: (usize, usize),
 //     inner: Box<ExprInner>,
 // }
@@ -13,7 +21,7 @@ pub type Literal = ops::LiteralValue;
 // pub enum ExprInner {} ...
 
 pub enum Expr {
-    Literal(Literal),
+    LiteralValue(LiteralValue),
     LocalScope(u8),
     ModuleScope(usize),
     BinaryOp(BinaryOp),
@@ -58,7 +66,7 @@ impl Expr {
     pub fn compile(&self) -> Vec<Op> {
         let mut g = CodeGenerator::new();
         match self {
-            Expr::Literal(l) => g.push(ops::LiteralCreate::new(*l).into()),
+            Expr::LiteralValue(l) => g.push(ops::LiteralCreate::new(*l).into()),
             Expr::LocalScope(i) => g.push(ops::StackLoad::new(*i).into()),
             Expr::ModuleScope(i) => {
                 g.push(ops::StackLoad::new(0).into());

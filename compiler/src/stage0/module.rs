@@ -1,6 +1,6 @@
 use crate::vm::bytecode;
 
-use super::{ops, CodeGenerator, Literal, Statement};
+use super::{ops, CodeGenerator, LiteralValue, Statement};
 
 pub struct Function {
     args: Vec<u8>,
@@ -23,7 +23,7 @@ impl Function {
 }
 
 pub enum ModuleItem {
-    Literal(Literal),
+    LiteralValue(LiteralValue),
     Buffer(Vec<u8>),
     ModuleRef(u32),
     Function(Function),
@@ -32,7 +32,7 @@ pub enum ModuleItem {
 impl ModuleItem {
     pub fn compile(self) -> bytecode::ModuleItem {
         match self {
-            ModuleItem::Literal(l) => bytecode::ModuleItem::LiteralValue(l),
+            ModuleItem::LiteralValue(l) => bytecode::ModuleItem::LiteralValue(l),
             ModuleItem::Buffer(b) => bytecode::ModuleItem::Buffer(b),
             ModuleItem::ModuleRef(i) => bytecode::ModuleItem::ModuleRef(i),
             ModuleItem::Function(f) => bytecode::ModuleItem::Function(f.compile()),
