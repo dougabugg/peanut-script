@@ -1,10 +1,30 @@
 pub struct Function {
-    pub args: Vec<usize>,
+    pub args: Vec<Var>,
     pub body: Vec<Statement>,
 }
 
 impl Function {
-    pub fn block_scope_analysis(&mut self) -> Result<(), Vec<Span<Var>>> {
+    pub fn compile(self) -> bytecode::Function {
+        let mut setup = Vec::new();
+        for arg in self.args {
+            setup.push(Statement::BindVar(arg));
+            setup.push(Statement::InitVar(arg));
+        }
+        setup.append(&mut self.body);
+        self.body = setup;
+        if let Err(unknown_scope_vars) = self.block_scope_analysis() {
+            panic!("found {} variables with unknown scope", unknown_scope_vars.len());
+        }
+        let mut g = CodeGenerator::new();
+        for statement in &self.body {
+            statement.compile(&mut g);
+        }
+        bytecode::Function {
+            ops: g.into_vec()
+        }
+    }
+
+    fn block_scope_analysis(&mut self) -> Result<(), Vec<Span<Var>>> {
         let mut seen = BTreeSet::new();
         let mut b = BlockScopeAnalysis::new(&mut seen);
         let unknown_scope_vars = b.process_block(&mut self.body);

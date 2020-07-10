@@ -33,6 +33,7 @@ pub struct CodeGenerator {
     ops: Vec<Op>,
     labels: Vec<LabelData>,
     loops: BTreeMap<usize, (Label, Label)>,
+    loop_stack: Vec<(Label, Label)>,
     vars: BTreeMap<Var, u8>,
     dropped: Vec<u8>,
     next_index: u8,
@@ -44,15 +45,12 @@ impl CodeGenerator {
             ops: Vec::new(),
             labels: Vec::new(),
             loops: BTreeMap::new(),
+            loop_stack: Vec::new(),
             vars: BTreeMap::new(),
             dropped: Vec<u8>,
             // next_index starts at 1, because module ref is at index 0
             next_index: 1,
         }
-    }
-
-    pub fn append(&mut self, mut ops: Vec<Op>) {
-        self.ops.append(&mut ops);
     }
 
     pub fn push(&mut self, op: Op) {
@@ -109,34 +107,47 @@ impl CodeGenerator {
 
     // loop methods
 
-    pub fn loop_enter(&mut self, loop_id: usize) {
+    pub fn loop_enter(&mut self, loop_id: Option<usize>) {
         let label_continue = self.create_label();
         let label_break = self.create_label();
-        match self.loops.insert(loop_id, (label_continue, label_break)) {
-            Some(_) => panic!("loop with id {} already exists", loop_id),
-            None => {},
+        self.loop_stack.push((label_continue, label_break));
+        if let Some(loop_id) = loop_id {
+            match self.loops.insert(loop_id, (label_continue, label_break)) {
+                Some(_) => panic!("loop with id {} already exists", loop_id),
+                None => {},
+            }
         }
     }
 
-    pub fn loop_exit(&mut self, loop_id: usize) {
-        match self.loops.remove(&loop_id) {
-            Some(_) => {},
-            None => panic!("failed to exit loop with id {}", loop_id),
+    pub fn loop_exit(&mut self, loop_id: Option<usize>) {
+        self.loop_stack.pop();
+        if let Some(loop_id) = loop_id {
+            match self.loops.remove(&loop_id) {
+                Some(_) => {},
+                None => panic!("failed to exit loop with id {}", loop_id),
+            }
         }
     }
 
-    fn get_loop_labels(&self, loop_id: usize) -> (Label, Label) {
-        match self.loops.get(&loop_id) {
-            Some(l) => l,
-            None => panic!("cannot find loop with id {}", loop_id),
+    fn get_loop_labels(&self, loop_id: Option<usize>) -> (Label, Label) {
+        if let Some(loop_id) = loop_id {
+            match self.loops.get(&loop_id) {
+                Some(l) => l,
+                None => panic!("cannot find loop with id {}", loop_id),
+            }
+        } else {
+            match self.loop_stack.last() {
+                Some(l) => l,
+                None => panic!("cannot get label: not in a loop block"),
+            }
         }
     }
 
-    pub fn loop_get_continue(&self, loop_id: usize) -> Label {
+    pub fn loop_get_continue(&self, loop_id: Option<usize>) -> Label {
         self.get_loop_labels(loop_id).0
     }
 
-    pub fn loop_get_break(&self, loop_id: usize) -> Label {
+    pub fn loop_get_break(&self, loop_id: Option<usize>) -> Label {
         self.get_loop_labels(loop_id).1
     }
 
