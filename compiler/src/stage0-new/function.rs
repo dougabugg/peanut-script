@@ -82,11 +82,11 @@ impl<'a> BlockScopeAnalysis<'a> {
 
     fn process_statement(&mut self, statement: &mut Statement) {
         match statement {
-            Statement::BindLocal(i) => self.bindings.insert(i.inner),
-            Statement::DropLocal(i) => {
-                panic!("unexpected DropLocal statement during block scope analysis");
+            Statement::BindVarl(i) => self.bindings.insert(i.inner),
+            Statement::DropVar(i) => {
+                panic!("unexpected DropVar statement during block scope analysis");
             },
-            Statement::InitLocal(i) => self.process_var(i),
+            Statement::InitVar(i) => self.process_var(i),
             Statement::Loop(l) => {
                 self.process_expr(&l.condition);
                 self.process_child_block(&mut l.body);

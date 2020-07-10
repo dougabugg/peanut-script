@@ -9,8 +9,8 @@ pub struct Span<T> {
 
 pub enum Expr {
     LiteralValue(Span<LiteralValue>),
-    LocalScope(Span<Var>),
-    ModuleScope(Span<usize>),
+    Var(Span<Var>),
+    ModuleRef,
     BinaryOp(BinaryOp),
     UnaryOp(UnaryOp),
     Call {
@@ -54,7 +54,9 @@ impl Expr {
 
     fn acc_vars(&self, vars: &mut Vec<Span<Var>>) {
         match self {
-            Expr::LocalScope(var) => vars.push(var),
+            Expr::LiteralValue(_) => {}
+            Expr::Var(var) => vars.push(var),
+            Expr::ModuleRef => {}
             Expr::BinaryOp(b) => {
                 b.lhs.acc_vars(vars);
                 b.rhs.acc_vars(vars);

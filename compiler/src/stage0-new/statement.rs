@@ -1,7 +1,7 @@
 pub enum Statement {
-    BindLocal(usize),
-    DropLocal(usize),
-    InitLocal(usize),
+    BindVar(usize),
+    DropVar(usize),
+    InitVar(usize),
     Loop(Loop),
     Break { label: Option<usize> },
     Continue { label: Option<usize> },
@@ -16,9 +16,9 @@ pub enum Statement {
 }
 
 pub struct Loop {
-    condition: Option<Expr>,
-    label: Option<usize>,
-    body: Vec<Statement>,
+    pub condition: Option<Expr>,
+    pub label: Option<usize>,
+    pub body: Vec<Statement>,
 }
 
 pub struct IfElse {
