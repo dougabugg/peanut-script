@@ -1,3 +1,5 @@
+use super::{ops::LiteralValue, Function};
+
 pub enum ModuleItem {
     LiteralValue(LiteralValue),
     Buffer(Vec<u8>),

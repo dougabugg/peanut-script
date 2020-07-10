@@ -1,3 +1,5 @@
+use super::{ops, ops::LiteralValue, BinaryOp, CodeGenerator, UnaryOp};
+
 pub type Var = usize;
 
 #[derive(Clone, Copy)]
@@ -48,7 +50,7 @@ pub enum Expr {
 impl Expr {
     pub fn compile(&self, g: &mut CodeGenerator) {
         match self {
-            Expr::LiteralValue(literal) => g.push(ops::LiteralCreate::new(*literal).into()),
+            Expr::LiteralValue(l) => g.push(ops::LiteralCreate::new(l.inner).into()),
             Expr::Var(var) => g.push_var_load(var.inner),
             Expr::ModuleRef => g.push(ops::StackLoad::new(0).into()),
             Expr::BinaryOp(b) => b.compile(g),
@@ -128,49 +130,49 @@ impl Expr {
     fn acc_vars(&self, vars: &mut Vec<Span<Var>>) {
         match self {
             Expr::LiteralValue(_) => {}
-            Expr::Var(var) => vars.push(var),
+            Expr::Var(var) => vars.push(*var),
             Expr::ModuleRef => {}
             Expr::BinaryOp(b) => {
                 b.lhs.acc_vars(vars);
                 b.rhs.acc_vars(vars);
-            },
+            }
             Expr::UnaryOp(u) => u.expr.acc_vars(vars),
             Expr::Call { func, args } => {
                 func.acc_vars(vars);
                 for arg in args {
                     arg.acc_vars(vars);
                 }
-            },
+            }
             Expr::SeqIndex { seq, index } => {
                 seq.acc_vars(vars);
                 index.acc_vars(vars);
-            },
+            }
             Expr::SeqLen { seq } => seq.acc_vars(vars),
             Expr::SeqToList { seq } => seq.acc_vars(vars),
             Expr::TupleCreate(exprs) => {
                 for e in exprs {
                     e.acc_vars(vars);
                 }
-            },
+            }
             Expr::TupleFromList(e) => e.acc_vars(vars),
             Expr::TableCreate(e) => e.acc_vars(vars),
             Expr::ListCreate(exprs) => {
                 for e in exprs {
                     e.acc_vars(vars);
                 }
-            },
+            }
             Expr::ListGetSlice { list, a, b } => {
                 list.acc_vars(vars);
                 a.acc_vars(vars);
                 b.acc_vars(vars);
-            },
+            }
             Expr::ListPop(e) => e.acc_vars(vars),
             Expr::BufferCreate(e) => e.acc_vars(vars),
             Expr::BufferGetSlice { buffer, a, b } => {
                 buffer.acc_vars(vars);
                 a.acc_vars(vars);
                 b.acc_vars(vars);
-            },
+            }
         }
     }
 }

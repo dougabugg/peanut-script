@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use super::Op;
+use super::{bytecode::Op, ops, Var};
 
 pub type Label = usize;
 
@@ -47,7 +47,7 @@ impl CodeGenerator {
             loops: BTreeMap::new(),
             loop_stack: Vec::new(),
             vars: BTreeMap::new(),
-            dropped: Vec<u8>,
+            dropped: Vec::new(),
             // next_index starts at 1, because module ref is at index 0
             next_index: 1,
         }
@@ -114,7 +114,7 @@ impl CodeGenerator {
         if let Some(loop_id) = loop_id {
             match self.loops.insert(loop_id, (label_continue, label_break)) {
                 Some(_) => panic!("loop with id {} already exists", loop_id),
-                None => {},
+                None => {}
             }
         }
     }
@@ -123,7 +123,7 @@ impl CodeGenerator {
         self.loop_stack.pop();
         if let Some(loop_id) = loop_id {
             match self.loops.remove(&loop_id) {
-                Some(_) => {},
+                Some(_) => {}
                 None => panic!("failed to exit loop with id {}", loop_id),
             }
         }
@@ -132,12 +132,12 @@ impl CodeGenerator {
     fn get_loop_labels(&self, loop_id: Option<usize>) -> (Label, Label) {
         if let Some(loop_id) = loop_id {
             match self.loops.get(&loop_id) {
-                Some(l) => l,
+                Some(l) => *l,
                 None => panic!("cannot find loop with id {}", loop_id),
             }
         } else {
             match self.loop_stack.last() {
-                Some(l) => l,
+                Some(l) => *l,
                 None => panic!("cannot get label: not in a loop block"),
             }
         }
@@ -171,7 +171,7 @@ impl CodeGenerator {
         let index = self.get_next_var_index();
         match self.vars.insert(var, index) {
             Some(_) => panic!("variable with id {} has already been bound", var),
-            None => {},
+            None => {}
         }
     }
 
@@ -179,14 +179,14 @@ impl CodeGenerator {
         match self.vars.remove(&var) {
             Some(index) => {
                 self.dropped.push(index);
-            },
+            }
             None => panic!("failed to drop variable with id {}", var),
         }
     }
 
     fn get_var_index(&self, var: Var) -> u8 {
-        match self.var.get(&var) {
-            Some(i) => i,
+        match self.vars.get(&var) {
+            Some(i) => *i,
             None => panic!("cannot find variable with id {}", var),
         }
     }

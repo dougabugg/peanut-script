@@ -1,78 +1,110 @@
+use super::{ops, CodeGenerator, Expr, Label, Var};
+
 pub enum Statement {
     BindVar(Var),
     DropVar(Var),
     InitVar(Var),
     Loop(Loop),
-    Break { label: Option<usize> },
-    Continue { label: Option<usize> },
+    Break {
+        label: Option<usize>,
+    },
+    Continue {
+        label: Option<usize>,
+    },
     Expr(Expr),
     Return(Expr),
     IfElse(IfElse),
-    Assign { place: Box<Expr>, value: Box<Expr> },
-    SeqAppend { seq: Box<Expr>, src: Box<Expr> },
-    SeqResize { seq: Box<Expr>, len: Box<Expr> },
-    ListPush { list: Box<Expr>, value: Box<Expr> },
-    BufferSetSlice(Box<BufferSetSlice>),
+    Assign {
+        place: Box<Expr>,
+        value: Box<Expr>,
+    },
+    SeqAppend {
+        seq: Box<Expr>,
+        src: Box<Expr>,
+    },
+    SeqResize {
+        seq: Box<Expr>,
+        len: Box<Expr>,
+    },
+    ListPush {
+        list: Box<Expr>,
+        value: Box<Expr>,
+    },
+    BufferSetSlice {
+        buffer: Box<Expr>,
+        src: Box<Expr>,
+        src_offset: Box<Expr>,
+        offset: Box<Expr>,
+        len: Box<Expr>,
+    },
 }
 
 impl Statement {
     pub fn compile(&self, g: &mut CodeGenerator) {
-        Statement::BindVar(var) => g.bind_var(var),
-        Statement::DropVar(var) => g.drop_var(var),
-        Statement::InitVar(var) => g.push_var_store(var),
-        Statement::Loop(l) => l.compile(g),
-        Statement::Break { label } => {
-            let label = g.loop_get_break(label);
-            g.push_jump(label, ops::Jump::new(0).into());
-        }
-        Statement::Continue { label } => {
-            let label = g.loop_get_continue(label);
-            g.push_jump(label, ops::Jump::new(0).into());
-        }
-        Statement::Expr(e) => {
-            e.compile(g);
-            g.push(ops::StackPop.into());
-        },
-        Statement::Return(e) => {
-            e.compile(g);
-            g.push(ops::Return.into());
-        }
-        Statement::IfElse(s) => s.compile(g),
-        Statement::Assign { place, value } => match place {
-            Expr::Var(var) => {
-                value.compile(g);
-                g.push_var_store(var.inner);
+        match self {
+            Statement::BindVar(var) => g.bind_var(*var),
+            Statement::DropVar(var) => g.drop_var(*var),
+            Statement::InitVar(var) => g.push_var_store(*var),
+            Statement::Loop(l) => l.compile(g),
+            Statement::Break { label } => {
+                let label = g.loop_get_break(*label);
+                g.push_jump(label, ops::Jump::new(0).into());
             }
-            Expr::SeqIndex { seq, index } => {
+            Statement::Continue { label } => {
+                let label = g.loop_get_continue(*label);
+                g.push_jump(label, ops::Jump::new(0).into());
+            }
+            Statement::Expr(e) => {
+                e.compile(g);
+                g.push(ops::StackPop.into());
+            }
+            Statement::Return(e) => {
+                e.compile(g);
+                g.push(ops::Return.into());
+            }
+            Statement::IfElse(s) => s.compile(g),
+            Statement::Assign { place, value } => match &**place {
+                Expr::Var(var) => {
+                    value.compile(g);
+                    g.push_var_store(var.inner);
+                }
+                Expr::SeqIndex { seq, index } => {
+                    seq.compile(g);
+                    index.compile(g);
+                    value.compile(g);
+                    g.push(ops::SeqSet.into());
+                }
+                _ => panic!("invalid place expression"),
+            },
+            Statement::SeqAppend { seq, src } => {
                 seq.compile(g);
-                index.compile(g);
-                value.compile(g);
-                g.push(ops::SeqSet.into());
+                src.compile(g);
+                g.push(ops::SeqAppend.into());
             }
-            _ => panic!("invalid place expression"),
-        },
-        Statement::SeqAppend { seq, src } => {
-            seq.compile(g);
-            src.compile(g);
-            g.push(ops::SeqAppend.into());
-        }
-        Statement::SeqResize { seq, len } => {
-            seq.compile(g);
-            len.compile(g);
-            g.push(ops::SeqResize.into());
-        }
-        Statement::ListPush { list, value } => {
-            list.compile(g);
-            value.compile(g);
-            g.push(ops::ListPush.into());
-        }
-        Statement::BufferSetSlice(b) => {
-            b.buffer.compile(g);
-            b.src.compile(g);
-            b.src_offset.compile(g);
-            b.offset.compile(g);
-            b.len.compile(g);
-            g.push(ops::BufferSetSlice.into());
+            Statement::SeqResize { seq, len } => {
+                seq.compile(g);
+                len.compile(g);
+                g.push(ops::SeqResize.into());
+            }
+            Statement::ListPush { list, value } => {
+                list.compile(g);
+                value.compile(g);
+                g.push(ops::ListPush.into());
+            }
+            Statement::BufferSetSlice {
+                buffer,
+                src,
+                src_offset,
+                offset,
+                len,
+            } => {
+                buffer.compile(g);
+                src.compile(g);
+                src_offset.compile(g);
+                offset.compile(g);
+                len.compile(g);
+                g.push(ops::BufferSetSlice.into());
+            }
         }
     }
 }
@@ -148,12 +180,4 @@ impl If {
         g.push_jump(label_endif, ops::Jump::new(0).into());
         g.label_here(label_next);
     }
-}
-
-pub struct BufferSetSlice {
-    pub buffer: Expr,
-    pub src: Expr,
-    pub src_offset: Expr,
-    pub offset: Expr,
-    pub len: Expr,
 }

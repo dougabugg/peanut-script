@@ -1,3 +1,5 @@
+use super::{ops, CodeGenerator, Expr};
+
 pub struct UnaryOp {
     pub op_type: UnaryOpType,
     pub expr: Box<Expr>,
