@@ -1,3 +1,4 @@
+use std::mem::swap;
 use std::collections::BTreeSet;
 
 struct DeferredDrop {
@@ -14,11 +15,14 @@ impl LocalsProcessor {
         let mut setup = Vec::new();
         for arg in func.args {
             setup.push(Statement::BindLocal(arg));
-            // TODO we need an Expr that just pops from stack and assigns to variable
-            let init_arg = SharedExpr::Assign
-            setup.push(Statement::Other());
+            setup.push(Statement::InitLocal(arg));
         }
-        let vars = self.process_block(&mut func.body);
+        setup.append(&mut func.body);
+        swap(&mut setup, &mut func.body);
+        let unknown_locals = self.process_block(&mut func.body);
+        if !unknown_locals.is_empty() {
+            panic!("local variable access before being bound to scope");
+        }
     }
 
     pub fn process_block(&mut self, block: &mut Vec<Statement>) -> Vec<usize> {
@@ -29,6 +33,12 @@ impl LocalsProcessor {
                 Statement::BindLocal(n) => bindings.insert(n),
                 Statement::DropLocal(_) => {
                     panic!("unexpected DropLocal statement while processing local varaibles");
+                }
+                Statement::InitLocal(local) => {
+                    let dropped = self.seen.insert(local);
+                    if dropped {
+                        drops.push(DeferredDrop { location: i, local });
+                    }
                 }
                 Statement::Loop(l) => {
                     match l.condition {

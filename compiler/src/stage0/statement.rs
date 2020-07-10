@@ -2,6 +2,7 @@ use super::shared::{BufferSetSlice, If, IfElse, SharedStatement};
 use super::{ops, CodeGenerator, Expr};
 
 pub enum Statement {
+    InitLocal(u8),
     Loop(Loop),
     Break { label: usize },
     Continue { label: usize },
@@ -11,6 +12,7 @@ pub enum Statement {
 impl Statement {
     pub fn compile(&self, g: &mut CodeGenerator) {
         match self {
+            Statement::InitLocal(i) => g.push(ops::StackStore::new(i).into()),
             Statement::Loop(loop_) => loop_.compile(g),
             Statement::Break { label } => g.push_jump(*label, ops::Jump::new(0).into()),
             Statement::Continue { label } => g.push_jump(*label, ops::Jump::new(0).into()),

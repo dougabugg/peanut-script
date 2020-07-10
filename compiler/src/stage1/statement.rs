@@ -4,6 +4,7 @@ use super::stage0;
 pub enum Statement {
     BindLocal(usize),
     DropLocal(usize),
+    InitLocal(usize),
     Loop(Loop),
     Break { label: Option<usize> },
     Continue { label: Option<usize> },
