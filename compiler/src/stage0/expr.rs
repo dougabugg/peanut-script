@@ -31,6 +31,8 @@ pub enum Expr {
     },
     TupleCreate(Vec<Expr>),
     TupleFromList(Box<Expr>),
+    TupleWeakRef(Box<Expr>),
+    TupleWeakUpgrade(Box<Expr>),
     TableCreate(Box<Expr>),
     ListCreate(Vec<Expr>),
     ListGetSlice {
@@ -86,6 +88,14 @@ impl Expr {
             Expr::TupleFromList(e) => {
                 e.compile(g);
                 g.push(ops::TupleFromList.into());
+            }
+            Expr::TupleWeakRef(e) => {
+                e.compile(g);
+                g.push(ops::TupleWeakRef.into());
+            }
+            Expr::TupleWeakUpgrade(e) => {
+                e.compile(g);
+                g.push(ops::TupleWeakUpgrade.into());
             }
             Expr::TableCreate(e) => {
                 e.compile(g);
@@ -155,6 +165,8 @@ impl Expr {
                 }
             }
             Expr::TupleFromList(e) => e.acc_vars(vars),
+            Expr::TupleWeakRef(e) => e.acc_vars(vars),
+            Expr::TupleWeakUpgrade(e) => e.acc_vars(vars),
             Expr::TableCreate(e) => e.acc_vars(vars),
             Expr::ListCreate(exprs) => {
                 for e in exprs {

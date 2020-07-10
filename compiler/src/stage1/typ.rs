@@ -6,6 +6,7 @@ pub enum Type {
     Alias(usize),
     GenericAlias(usize, Rc<[Type]>),
     Option(Box<Type>),
+    Weak(Box<Type>),
     Bool,
     Integer,
     Real,
@@ -31,6 +32,7 @@ impl Type {
                 true
             }
             Type::Option(t) => t.is_concrete(),
+            Type::Weak(t) => t.is_concrete(),
             Type::Tuple(items) => {
                 for item in items.iter() {
                     if !item.is_concrete() {
@@ -57,6 +59,7 @@ impl Type {
                 Some(Type::GenericAlias(*i, Rc::from(v)))
             },
             Type::Option(t) => Some(Type::Option(Box::new(t.resolve_params(params)?))),
+            Type::Weak(t) => Some(Type::Weak(Box::new(t.resolve_params(params)?))),
             Type::Tuple(items) => {
                 let mut v = Vec::new();
                 for item in items.iter() {
