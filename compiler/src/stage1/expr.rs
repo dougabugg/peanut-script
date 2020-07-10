@@ -8,12 +8,10 @@ pub struct Expr {
 
 impl Expr {
     pub fn find_locals(&self) -> Vec<usize> {
-        let mut v = Vec::new();
         match self.inner {
-            ExprInner::LocalScope(i) => v.push(i),
-            ExprInner::Other(s) => v.append(&mut s.find_locals()),
+            ExprInner::LocalScope(i) => vec![i],
+            ExprInner::Other(s) => s.find_locals(),
         }
-        v
     }
 }
 
@@ -22,7 +20,6 @@ pub enum ExprInner {
     Other(SharedExpr<Expr>),
 }
 
-// TODO
 impl SharedExpr<Expr> {
     pub fn find_locals(&self) -> Vec<usize> {
         let mut v = Vec::new();
@@ -37,22 +34,43 @@ impl SharedExpr<Expr> {
                 for arg in args {
                     v.append(&mut arg.find_locals());
                 }
-            },
+            }
             SharedExpr::Assign { place, value } => {
-                
-            },
-            SharedExpr::SeqIndex => SharedExpr::SeqIndex,
-            SharedExpr::SeqLen => SharedExpr::SeqLen,
-            SharedExpr::SeqToList => SharedExpr::SeqToList,
-            SharedExpr::TupleCreate => SharedExpr::TupleCreate,
-            SharedExpr::TupleFromList => SharedExpr::TupleFromList,
-            SharedExpr::TableCreate => SharedExpr::TableCreate,
-            SharedExpr::ListCreate => SharedExpr::ListCreate,
-            SharedExpr::ListGetSlice => SharedExpr::ListGetSlice,
-            SharedExpr::ListPop => SharedExpr::ListPop,
-            SharedExpr::BufferCreate => SharedExpr::BufferCreate,
-            SharedExpr::BufferGetSlice => SharedExpr::BufferGetSlice,
+                v.append(&mut place.find_locals());
+                v.append(&mut value.find_locals());
+            }
+            SharedExpr::SeqIndex { seq, index } => {
+                v.append(&mut seq.find_locals());
+                v.append(&mut index.find_locals());
+            }
+            SharedExpr::SeqLen { seq } => v.append(&mut seq.find_locals()),
+            SharedExpr::SeqToList { seq } => v.append(&mut seq.find_locals()),
+            SharedExpr::TupleCreate(items) => {
+                for item in items {
+                    v.append(&mut item.find_locals());
+                }
+            }
+            SharedExpr::TupleFromList(list) => v.append(&mut list.find_locals()),
+            SharedExpr::TableCreate(list) => v.append(&mut list.find_locals()),
+            SharedExpr::ListCreate(items) => {
+                for item in items {
+                    v.append(&mut item.find_locals());
+                }
+            }
+            SharedExpr::ListGetSlice { list, a, b } => {
+                v.append(&mut list.find_locals());
+                v.append(&mut a.find_locals());
+                v.append(&mut b.find_locals());
+            }
+            SharedExpr::ListPop(list) => v.append(&mut list.find_locals()),
+            SharedExpr::BufferCreate(size) => v.append(&mut size.find_locals()),
+            SharedExpr::BufferGetSlice { buffer, a, b } => {
+                v.append(&mut buffer.find_locals());
+                v.append(&mut a.find_locals());
+                v.append(&mut b.find_locals());
+            }
         }
+        v
     }
 
     pub fn convert(self) -> SharedExpr<stage0::Expr> {
